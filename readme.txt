@@ -4,13 +4,15 @@ Donate link: http://donate.ramonfincken.com
 Tags: spam,antispam,phpbbantispam
 Requires at least: 2.0.2
 Tested up to: 3.0.1
-Stable tag: 0.1
+Stable tag: 0.2
 
 Plugin to reject spam. Port from same author from http://www.phpbbantispam.com
+Actually visits the URL from commenter to spider for spamwords. Plugin does a lot more.
 
 == Description ==
 
 Plugin to reject spam. Port from same author from http://www.phpbbantispam.com
+Actually visits the URL from commenter to spider for spamwords. Plugin does a lot more.
 
 == Installation ==
 
@@ -23,6 +25,9 @@ None available
 
 
 == Changelog ==
+
+= 0.2 =
+Implemented visit of URL of commenter to spider for spamwords.
 
 = 0.1 =
 First release
