@@ -16,7 +16,14 @@ function plugin_antispam_for_all_fields($status) {
    $afaf->init($status, $commentdata);
 }
 
+/**
+ * Class, based on my PhpBB2 antispam for all fields module: http://www.phpbbantispam.com
+ * @author Ramon Fincken
+ */
 class antispam_for_all_fields {
+   /**
+    * Core function to init spamchecks
+    */
    function init($status, $commentdata) {
       $this->lower_limit = 2;
       $this->upper_limit = 10;
@@ -130,6 +137,10 @@ class antispam_for_all_fields {
       return $spamstatus;
    }
 
+   /**
+    * Returns an array of words
+    * TODO: DB table
+    */
    private function get_words() {
       $words = array (
          '*.ru*',
@@ -178,7 +189,10 @@ class antispam_for_all_fields {
       return $words;
    }
 
-
+   /**
+    * Notifies admin or custom inserted replacement > get_option('plugin_antispamfaf_emaillog')
+    * TODO: Make admin option page
+    */
    private function mail_details($subject, $body)
    {
          $admin_email = get_option('admin_email');
@@ -193,6 +207,9 @@ class antispam_for_all_fields {
          wp_mail($email_to, '[' . $blogname . '][Antispam] '.$subject.' ' . date('r'), $body);
    }
 
+   /**
+    * Checks if this value has been marked as spam before
+    */
    private function compare_counts($count, $field, $commentdata) {
       if ($count > $this->upper_limit) {
          $body = "Details are below: \n";
@@ -235,6 +252,9 @@ class antispam_for_all_fields {
    }
 
    // ---------------- CHANGE STRING FUNCTIONS
+   /**
+    * L33t filter :)
+    */
    private function change_txt($txt, $mode) {
       // 1.1.2, 1.1.3
       switch ($mode) {
@@ -371,6 +391,10 @@ class antispam_for_all_fields {
       return $txt;
    }
 
+   /**
+    * Strips double chars
+    * Partial/rewrote code from: Forum Assassin, Dom Walenczak http://spam.wulfslair.com/ (Cybertronian Alliance Corp)
+    */
    private function strip_doublechars($txt) {
       /* Partial/rewrote code from: Forum Assassin, Dom Walenczak http://spam.wulfslair.com/ (Cybertronian Alliance Corp) */
 
@@ -386,6 +410,9 @@ class antispam_for_all_fields {
    }
    // ---------------- CHANGE STRING FUNCTIONS
 
+   /**
+    * Returns internal SQL results
+    */
    private function check_count($field, $value) {
       global $wpdb;
 
