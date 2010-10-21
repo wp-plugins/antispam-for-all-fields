@@ -1,7 +1,7 @@
 === Antispam for all fields ===
 Contributors: Ramon Fincken
 Donate link: http://donate.ramonfincken.com
-Tags: spam,antispam,phpbbantispam,anti-spam
+Tags: spam,antispam,phpbbantispam,anti-spam,comment,comments,spambots,spambot,ban,banned,list,deny,protect
 Requires at least: 2.0.2
 Tested up to: 3.0.1
 Stable tag: 0.2
