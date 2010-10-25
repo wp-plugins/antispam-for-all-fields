@@ -1,10 +1,10 @@
 === Antispam for all fields ===
 Contributors: Ramon Fincken
 Donate link: http://donate.ramonfincken.com
-Tags: spam,antispam,phpbbantispam,anti-spam,comment,comments,spambots,spambot,ban,banned,list,deny,protect
+Tags: spam,antispam,phpbbantispam,anti-spam
 Requires at least: 2.0.2
 Tested up to: 3.0.1
-Stable tag: 0.2
+Stable tag: 0.3
 
 Plugin to reject spam. Port from same author from http://www.phpbbantispam.com
 Actually visits the URL from commenter to spider for spamwords. Plugin does a lot more.
@@ -25,6 +25,10 @@ None available
 
 
 == Changelog ==
+
+= 0.3 =
+Bugfix: forgot to report status, fix that will run once is included.
+Fix triggers when a new comment is submitted.
 
 = 0.2 =
 Implemented visit of URL of commenter to spider for spamwords.
