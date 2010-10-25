@@ -4,11 +4,20 @@ Plugin Name: Antispam for all fields
 Plugin URI: http://www.mijnpress.nl
 Description: Class and functions
 Author: Ramon Fincken
-Version: 0.2
+Version: 0.3
 Author URI: http://www.mijnpress.nl
 */
 
-add_filter('pre_comment_approved', 'plugin_antispam_for_all_fields', 1);
+add_filter('pre_comment_approved', 'plugin_antispam_for_all_fields', 0);
+add_action('activity_box_end', 'plugin_antispam_for_all_fields_stats');
+
+/**
+ * Displays stats in dashboard
+ */
+function plugin_antispam_for_all_fields_stats() {
+      echo '<p>'.sprintf(__('<a href="%1$s" target="_blank">Antispam for all fields</a> has blocked <strong>%2$s</strong> spam comments.'), 'http://wordpress.org/extend/plugins/antispam-for-all-fields/',  number_format('') ).'</p>';
+}
+
 
 function plugin_antispam_for_all_fields($status) {
    global $commentdata;
@@ -25,6 +34,10 @@ class antispam_for_all_fields {
     * Core function to init spamchecks
     */
    function init($status, $commentdata) {
+      if($commentdata['comment_type'] == 'trackback' || $commentdata['comment_type'] == 'pingback')
+      {
+         return 0;
+      }
       $this->lower_limit = 2;
       $this->upper_limit = 10;
       $this->wpdb_spam_status = 'spam';
@@ -146,7 +159,7 @@ class antispam_for_all_fields {
          '*.ru*',
          // '*sex*', positive for sex and the city
          '*pharmac*',
-         '*CIALIS*',
+         // '*CIALIS*', positive for gespecialiseerd
          '*viagra*',
          '*mortgage*',
          '*drug*',
@@ -157,7 +170,6 @@ class antispam_for_all_fields {
          '*diet*',
          '*tramad*',
          '*credit*',
-         '*anal*',
          '*invest*',
          '*adult',
          '*pharm*',
