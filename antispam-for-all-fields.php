@@ -39,7 +39,6 @@ class antispam_for_all_fields {
 	function init($status, $commentdata) {
 		if($commentdata['comment_type'] == 'trackback' || $commentdata['comment_type'] == 'pingback')
 		{
-			die('trackback or pingback');
 			return 0;
 		}
 		$this->lower_limit = 2;
