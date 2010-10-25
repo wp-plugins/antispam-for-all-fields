@@ -17,7 +17,10 @@ define('PLUGIN_ANTISPAM_FOR_ALL_FIELDS_VERSION','0.3');
  * Displays stats in dashboard
  */
 function plugin_antispam_for_all_fields_stats() {
-		echo '<p>'.sprintf(__('<a href="%1$s" target="_blank">Antispam for all fields</a> has blocked <strong>%2$s</strong> spam comments.'), 'http://wordpress.org/extend/plugins/antispam-for-all-fields/',  number_format('') ).'</p>';
+	$statskilled = intval(get_option('plugin_antispam_for_all_fields_statskilled'));
+	$statsspammed = intval(get_option('plugin_antispam_for_all_fields_statsspammed'));
+	
+	echo '<p>'.sprintf(__('<a href="%1$s" target="_blank">Antispam for all fields</a> has blocked <strong>%2$s</strong> and spammed <strong>%2$s</strong> comments.'), 'http://wordpress.org/extend/plugins/antispam-for-all-fields/',  number_format($statskilled),number_format($statsspammed) ).'</p>';
 }
 
 
@@ -240,7 +243,8 @@ class antispam_for_all_fields {
 			}
 			
 			$this->mail_details('rejected comment',$body);
-			
+			$temp = get_option('plugin_antispam_for_all_fields_statskilled');
+			update_option('plugin_antispam_for_all_fields_statskilled',intval($temp)+1);
 			Header('HTTP/1.1 403 Forbidden');
 			die('spam');
 		} else {
@@ -256,10 +260,11 @@ class antispam_for_all_fields {
 				foreach ($commentdata as $key => $val) {
 					$body .= "$key : $val \n";
 				}
-				
+								
 				$this->mail_details('spammed comment',$body);
 
-
+				$temp = get_option('plugin_antispam_for_all_fields_statsspammed');
+				update_option('plugin_antispam_for_all_fields_statsspammed',intval($temp)+1);
 				return 'spam';
 			}
 		}

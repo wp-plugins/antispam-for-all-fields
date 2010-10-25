@@ -29,6 +29,8 @@ None available
 = 0.3 =
 Bugfix: forgot to report status, fix that will run once is included.
 Fix triggers when a new comment is submitted.
+Added counter
+Changed wordlist a bit
 
 = 0.2 =
 Implemented visit of URL of commenter to spider for spamwords.
