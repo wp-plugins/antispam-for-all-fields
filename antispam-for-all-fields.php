@@ -4,7 +4,7 @@
  Plugin URI: http://www.mijnpress.nl
  Description: Class and functions
  Author: Ramon Fincken
- Version: 0.5
+ Version: 0.5.1
  Author URI: http://www.mijnpress.nl
  */
 

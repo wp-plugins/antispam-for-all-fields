@@ -4,7 +4,7 @@ Donate link: http://donate.ramonfincken.com
 Tags: spam,antispam,phpbbantispam,anti-spam,wordpressantispam
 Requires at least: 2.0.2
 Tested up to: 3.0.3
-Stable tag: 0.5
+Stable tag: 0.5.1
 
 Plugin to reject spam. Port from same author from http://www.phpbbantispam.com
 Actually visits the URL from commenter to spider for spamwords.
@@ -36,6 +36,9 @@ The support forums over here, drop me a tweet to notify me of your support topic
 
 
 == Changelog ==
+
+= 0.5.1 =
+Bugfix: Random nonce was given multiple times
 
 = 0.5 =
 Bugfix: Counter<br>
