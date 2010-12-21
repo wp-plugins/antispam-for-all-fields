@@ -160,13 +160,13 @@ class antispam_for_all_fields_core extends mijnpress_plugin_framework
 	 * Checks if this value has been marked as spam before
 	 */
 	protected function compare_counts($count, $field, $commentdata) {
-		if ($count > $this->upper_limit) {
+		if ($count > $this->limits['upper']) {
 			$body = "Details are below: \n";
 			$body .= "action: exceeded upper threshold, comment denied \n";
 
 			$body .= "IP adress " . $this->user_ip . "\n";
-			$body .= "low threshold " . $this->lower_limit . "\n";
-			$body .= "upper threshold " . $this->upper_limit . "\n";
+			$body .= "low threshold " . $this->limits['lower'] . "\n";
+			$body .= "upper threshold " . $this->limits['upper'] . "\n";
 
 			$body .= "number of simular comments for field ($field) : " . $count . " times\n\n";
 			foreach ($commentdata as $key => $val) {
@@ -181,13 +181,13 @@ class antispam_for_all_fields_core extends mijnpress_plugin_framework
 			Header('HTTP/1.1 403 Forbidden');
 			die('spam');
 		} else {
-			if ($count > $this->lower_limit) {
+			if ($count > $this->limits['lower']) {
 				$body = "Details are below: \n";
 				$body .= "action: exceeded lower threshold, comment marked as spam \n";
 
 				$body .= "IP adress " . $this->user_ip . "\n";
-				$body .= "low threshold " . $this->lower_limit . "\n";
-				$body .= "upper threshold " . $this->upper_limit . "\n";
+				$body .= "low threshold " . $this->limits['lower'] . "\n";
+				$body .= "upper threshold " . $this->limits['upper'] . "\n";
 
 				$body .= "number of simular comments for field ($field) : " . $count . " times\n\n";
 				foreach ($commentdata as $key => $val) {

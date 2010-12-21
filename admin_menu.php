@@ -31,6 +31,8 @@ Email to: (leave blank for default email <u><?php echo get_option('admin_email')
 
 <br/>
 Scan for these words (one word per line, start with * end with *)<br/>
+This is an agressive list. Please delete or add any words your want.
+<br/>
 <textarea name="words" rows="15"><?php $i = 0; foreach($plugin->words as $word) { if($i > 0) {echo "\n";} echo $word; $i++;}; ?></textarea>
 
 <input type="submit" name="button" value="Update" class="button-primary" />
