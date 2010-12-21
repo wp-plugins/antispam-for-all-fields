@@ -15,7 +15,7 @@ if(!class_exists('mijnpress_plugin_framework'))
 	include('mijnpress_plugin_framework.php');
 }
 
-define('PLUGIN_ANTISPAM_FOR_ALL_FIELDS_VERSION', '0.5');
+define('PLUGIN_ANTISPAM_FOR_ALL_FIELDS_VERSION', '0.5.1');
 
 if(!class_exists('antispam_for_all_fields_core'))
 {
