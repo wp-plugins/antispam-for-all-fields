@@ -4,7 +4,7 @@
  Plugin URI: http://www.mijnpress.nl
  Description: Class and functions
  Author: Ramon Fincken
- Version: 0.5.2
+ Version: 0.6
  Author URI: http://www.mijnpress.nl
  */
 
@@ -15,7 +15,7 @@ if(!class_exists('mijnpress_plugin_framework'))
 	include('mijnpress_plugin_framework.php');
 }
 
-define('PLUGIN_ANTISPAM_FOR_ALL_FIELDS_VERSION', '0.5.2');
+define('PLUGIN_ANTISPAM_FOR_ALL_FIELDS_VERSION', '0.6');
 
 if(!class_exists('antispam_for_all_fields_core'))
 {
@@ -295,6 +295,14 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 			}
 		}
 
+		// IP check
+		$count = $this->check_count('comment_author_IP', $this->user_ip);
+		$temp = $this->compare_counts($count, 'comment_author_IP', $commentdata);
+		if ($temp) {
+			return $temp;
+		}
+
+	
 		if (!empty ($comment_content)) {
 			//
 			$number_of_sites = $this->count_number_of_sites($comment_content);
@@ -316,9 +324,11 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 				$this->update_stats('spammed');
 				return 'spam';
 			}
-				
+
 			foreach ($this->words as $word) {
+
 				$string_is_spam = $this->string_is_spam($word, $comment_content);
+
 				if ($string_is_spam) {
 
 					$body = "Details are below: \n";
@@ -334,8 +344,6 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 						$body .= "$key : $val \n";
 					}
 
-
-					Header('HTTP/1.1 403 Forbidden');
 					
 					echo $this->language['explain'];
 					echo '<br/>We found a spamword in your comment: '.$word;
@@ -347,22 +355,14 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 				}
 			}
 		}
-
-		// IP check
-		$count = $this->check_count('comment_author_IP', $this->user_ip);
-		$temp = $this->compare_counts($count, 'comment_author_IP', $commentdata);
-		if ($temp) {
-			return $temp;
-		}
-
-
+	echo 'test'.__LINE__;
 		if (!empty ($url)) {
 			$count = $this->check_count('comment_author_url', $url);
 			$temp = $this->compare_counts($count, 'comment_author_url', $commentdata);
 			if ($temp) {
 				return $temp;
 			}
-
+	echo 'test'.__LINE__;
 			// Now check for words
 			if ($html_body = wp_remote_retrieve_body(wp_remote_get($url))) {
 				if (!empty ($html_body)) {
@@ -382,7 +382,6 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 								$body .= "$key : $val \n";
 							}
 
-							Header('HTTP/1.1 403 Forbidden');
 							echo $this->language['explain'];
 							echo '<br/>We found a spamword in your comment: '.$word;
 
@@ -395,6 +394,7 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 				}
 			}
 		}
+			echo 'test'.__LINE__;
 		return 0;
 	}
 }

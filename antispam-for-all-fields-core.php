@@ -17,7 +17,7 @@ class antispam_for_all_fields_core extends mijnpress_plugin_framework
 	/**
 	 * Checks if regex is applicable for this word in a string
 	 */
-	private function string_is_spam($stringtotest, $spamword) {
+	protected function string_is_spam($stringtotest, $spamword) {
 		$spamstatus = false;
 		if (preg_match("#\b(" . str_replace("\*", ".*?", preg_quote($stringtotest, '#')) . ")\b#i", $spamword)) {
 			$spamstatus = true;
@@ -137,7 +137,7 @@ class antispam_for_all_fields_core extends mijnpress_plugin_framework
 	 * Updates counter for stats
 	 * @param void
 	 */
-	private function update_stats($type = 'killed')
+	protected function update_stats($type = 'killed')
 	{
 		if($type == 'killed')
 		{
@@ -178,7 +178,7 @@ class antispam_for_all_fields_core extends mijnpress_plugin_framework
 			$this->mail_details('rejected comment', $body,$commment_key);
 			$this->store_comment($commentdata,'killed');
 			$this->update_stats('killed');
-			Header('HTTP/1.1 403 Forbidden');
+			
 			die('spam');
 		} else {
 			if ($count > $this->limits['lower']) {
@@ -206,7 +206,7 @@ class antispam_for_all_fields_core extends mijnpress_plugin_framework
 	/**
 	 * Performs bugfix
 	 */
-	function do_bugfix() {
+	protected function do_bugfix() {
 		// Bugfix for v 0.2
 		if ((PLUGIN_ANTISPAM_FOR_ALL_FIELDS_VERSION == '0.3' || PLUGIN_ANTISPAM_FOR_ALL_FIELDS_VERSION == '0.4') && get_option('plugin_antispam_for_all_fields_v02fix') != 'yes') {
 			global $wpdb;
@@ -237,7 +237,7 @@ class antispam_for_all_fields_core extends mijnpress_plugin_framework
 		return $number;
 	}
 
-	function website_syntax_ok($url) {
+	protected function website_syntax_ok($url) {
 		$url = strtolower($url);
 		if (empty ($url))
 		return false;
