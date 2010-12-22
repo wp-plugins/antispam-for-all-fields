@@ -83,9 +83,17 @@ function plugin_antispam_for_all_fields_stats() {
  */
 function plugin_antispam_for_all_fields($status) {
 	global $commentdata;
+	
+	if(!isset($status) || empty($status))
+	{
+		$status = 0; // default un-approved
+	}
+
 	$afaf = new antispam_for_all_fields();
 	$afaf->do_bugfix();
-	return $afaf->init($status, $commentdata);
+	$temp = $afaf->init($status, $commentdata);
+
+	return $temp;
 }
 
 // Admin only
@@ -156,7 +164,7 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 		}
 		
 		$this->user_ip = htmlspecialchars(preg_replace('/[^0-9a-fA-F:., ]/', '', $_SERVER['REMOTE_ADDR']));
-		$this->user_ip_fwd = htmlspecialchars(preg_replace('/[^0-9a-fA-F:., ]/', '', $_SERVER['HTTP_X_FORWARDED_FOR'])); // For future use		
+		$this->user_ip_fwd = htmlspecialchars(preg_replace('/[^0-9a-fA-F:., ]/', '', @$_SERVER['HTTP_X_FORWARDED_FOR'])); // For future use		
 	}
 
 	function antispam_for_all_fields()
@@ -272,7 +280,7 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 	 */
 	function init($status, $commentdata) {
 		if ($commentdata['comment_type'] == 'trackback' || $commentdata['comment_type'] == 'pingback') {
-			return 0;
+			return $status;
 		}
 
 		$email = $commentdata['comment_author_email'];
@@ -287,6 +295,7 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 				return $temp;
 			}
 		}
+
 		if (!empty ($author)) {
 			$count = $this->check_count('comment_author', $author);
 			$temp = $this->compare_counts($count, 'comment_author', $commentdata);
@@ -302,9 +311,10 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 			return $temp;
 		}
 
-	
+
 		if (!empty ($comment_content)) {
 			//
+
 			$number_of_sites = $this->count_number_of_sites($comment_content);
 			if($number_of_sites > $this->limits['numbersites'])
 			{
@@ -355,18 +365,19 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 				}
 			}
 		}
-	echo 'test'.__LINE__;
+
 		if (!empty ($url)) {
 			$count = $this->check_count('comment_author_url', $url);
 			$temp = $this->compare_counts($count, 'comment_author_url', $commentdata);
 			if ($temp) {
 				return $temp;
 			}
-	echo 'test'.__LINE__;
+
 			// Now check for words
 			if ($html_body = wp_remote_retrieve_body(wp_remote_get($url))) {
 				if (!empty ($html_body)) {
 					foreach ($this->words as $word) {
+
 						$string_is_spam = $this->string_is_spam($word, $html_body);
 						if ($string_is_spam) {
 							$body = "Details are below: \n";
@@ -394,8 +405,7 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 				}
 			}
 		}
-			echo 'test'.__LINE__;
-		return 0;
+		return $status;
 	}
 }
 ?>

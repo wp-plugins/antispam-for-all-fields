@@ -206,14 +206,16 @@ class antispam_for_all_fields_core extends mijnpress_plugin_framework
 	/**
 	 * Performs bugfix
 	 */
-	protected function do_bugfix() {
+	public function do_bugfix() {
 		// Bugfix for v 0.2
-		if ((PLUGIN_ANTISPAM_FOR_ALL_FIELDS_VERSION == '0.3' || PLUGIN_ANTISPAM_FOR_ALL_FIELDS_VERSION == '0.4') && get_option('plugin_antispam_for_all_fields_v02fix') != 'yes') {
+		//if ((PLUGIN_ANTISPAM_FOR_ALL_FIELDS_VERSION == '0.3' || PLUGIN_ANTISPAM_FOR_ALL_FIELDS_VERSION == '0.4') && get_option('plugin_antispam_for_all_fields_v02fix') != 'yes') {
+		if(true)
+		{
 			global $wpdb;
 
 			$sql = 'UPDATE ' . $wpdb->comments . ' SET comment_approved = 0 WHERE comment_approved = \'\'';
 			$wpdb->get_results($sql);
-			update_option('plugin_antispam_for_all_fields_v02fix', 'yes');
+			//update_option('plugin_antispam_for_all_fields_v02fix', 'yes');
 		}
 		// Bugfix for v 0.2
 	}
