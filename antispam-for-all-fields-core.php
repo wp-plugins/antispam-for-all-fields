@@ -17,7 +17,7 @@ class antispam_for_all_fields_core extends mijnpress_plugin_framework
 	/**
 	 * Checks if regex is applicable for this word in a string
 	 */
-	protected function string_is_spam($stringtotest, $spamword) {
+	public function string_is_spam($stringtotest, $spamword) {
 		$spamstatus = false;
 		if (preg_match("#\b(" . str_replace("\*", ".*?", preg_quote($stringtotest, '#')) . ")\b#i", $spamword)) {
 			$spamstatus = true;
@@ -27,7 +27,7 @@ class antispam_for_all_fields_core extends mijnpress_plugin_framework
 
 	/**
 	 * Returns an array of words
-	 * TODO: DB table
+	 * Used by init, later on this will be a list from the database by GUI (user)
 	 */
 	protected function get_words() {
 		$words = array (
@@ -106,7 +106,7 @@ class antispam_for_all_fields_core extends mijnpress_plugin_framework
 
 		$body ="This comment is stored for ".$this->store_comment_in_days. " days.\n";
 		$body .= sprintf( __('Approve it: %s'), admin_url($this->plugin_config_url."&action=approve&comment_key=$commment_key") ) . "\r\n";
-		$body .= sprintf( __('Blacklist IP: %s'), admin_url($this->plugin_config_url."&action=blacklist_ip&ip=".$this->user_ip) ) . "\r\n\r\n";
+		$body .= sprintf( __('Blacklist IP: %s'), admin_url($this->plugin_config_url."&action=blacklist_ip&ip=".$this->user_ip."&comment_key=$commment_key") ) . "\r\n\r\n";
 		
 		$body .= $mailbody;
 		
@@ -207,8 +207,8 @@ class antispam_for_all_fields_core extends mijnpress_plugin_framework
 	 * Performs bugfix
 	 */
 	public function do_bugfix() {
-		// Bugfix for v 0.2
-		//if ((PLUGIN_ANTISPAM_FOR_ALL_FIELDS_VERSION == '0.3' || PLUGIN_ANTISPAM_FOR_ALL_FIELDS_VERSION == '0.4') && get_option('plugin_antispam_for_all_fields_v02fix') != 'yes') {
+		// I have no idea why some comments have an empty approved value.
+		// This is only occuring on 1 WP site, even with this plugin disabled!
 		if(true)
 		{
 			global $wpdb;
@@ -217,7 +217,6 @@ class antispam_for_all_fields_core extends mijnpress_plugin_framework
 			$wpdb->get_results($sql);
 			//update_option('plugin_antispam_for_all_fields_v02fix', 'yes');
 		}
-		// Bugfix for v 0.2
 	}
 
 	// ---------------- SYNTAX TEST FUNCTIONS

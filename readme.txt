@@ -4,7 +4,7 @@ Donate link: http://donate.ramonfincken.com
 Tags: spam,antispam,phpbbantispam,anti-spam,wordpressantispam
 Requires at least: 2.0.2
 Tested up to: 3.0.3
-Stable tag: 0.6
+Stable tag: 0.6.5
 
 Plugin to reject spam. Port from same author from http://www.phpbbantispam.com
 Actually visits the URL from commenter to spider for spamwords.
@@ -36,6 +36,10 @@ The support forums over here, drop me a tweet to notify me of your support topic
 
 
 == Changelog ==
+
+= 0.6.5 =
+Added: nice wp-die message if a comment is held for moderation<br>
+Changed: if you blacklist an IP adress, also delete the comment
 
 = 0.6 =
 Bugfix: Private function instead of protected, causing the wordlist to halt on error

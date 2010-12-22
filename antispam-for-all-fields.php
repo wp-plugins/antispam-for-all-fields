@@ -4,7 +4,7 @@
  Plugin URI: http://www.mijnpress.nl
  Description: Class and functions
  Author: Ramon Fincken
- Version: 0.6
+ Version: 0.6.5
  Author URI: http://www.mijnpress.nl
  */
 
@@ -15,13 +15,12 @@ if(!class_exists('mijnpress_plugin_framework'))
 	include('mijnpress_plugin_framework.php');
 }
 
-define('PLUGIN_ANTISPAM_FOR_ALL_FIELDS_VERSION', '0.6');
+define('PLUGIN_ANTISPAM_FOR_ALL_FIELDS_VERSION', '0.6.5');
 
 if(!class_exists('antispam_for_all_fields_core'))
 {
 	include('antispam-for-all-fields-core.php');
 }
-
 
 // Calls core function after a comments has been submit
 add_filter('pre_comment_approved', 'plugin_antispam_for_all_fields', 0);
@@ -32,8 +31,6 @@ add_action('activity_box_end', 'plugin_antispam_for_all_fields_stats');
 // Disabled due to sessions, I want to store it otherwise ( I know that session_start() is an option )
 // add_action ('comment_form', 'plugin_antispam_for_all_fields_insertfields');
 // add_action ('comment_post', 'plugin_antispam_for_all_fields_checkfields');
-
-
 
 function plugin_antispam_for_all_fields_checkfields()
 {
@@ -84,15 +81,16 @@ function plugin_antispam_for_all_fields_stats() {
 function plugin_antispam_for_all_fields($status) {
 	global $commentdata;
 	
-	if(!isset($status) || empty($status))
-	{
-		$status = 0; // default un-approved
-	}
-
 	$afaf = new antispam_for_all_fields();
 	$afaf->do_bugfix();
 	$temp = $afaf->init($status, $commentdata);
 
+	// Sometimes an IP is not added, so lets do that here ;)
+	if(empty($commentdata['comment_author_IP']))
+	{
+		$commentdata['comment_author_IP'] = $this->user_ip;
+	}	
+	
 	return $temp;
 }
 
@@ -120,7 +118,7 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 		$this->plugin_config_url = 'plugins.php?page='.$this->plugin_filename;
 		
 		$this->language = array(); // TODO make seperate file
-		$this->language['explain'] = 'Your request has been blocked by our antispam system. <br/>Site administration has been notified and will approve your comment after review.<br/>Do not re-submit your comment!';
+		$this->language['explain'] = 'Thank you for your comment!. Your comment has been temporary held by our antispam system for moderation. <br/><strong>Site administration has been notified and will approve your comment after review.</strong><br/><br/>Do not re-submit your comment!';
 
 		// Defaults
 		$this->wpdb_spam_status = 'spam';
@@ -257,8 +255,27 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 						$plugin->blacklist_ip($ip);
 						$plugin->show_message('IP blacklisted');
 						
-						// TODO ? delete or spam comment
-						//$plugin->show_message('Comment deleted');
+						// Delete
+						if(isset($_GET['comment_key']))
+						{
+							$comment_key = $_GET['comment_key'];
+							delete_transient($comment_key);
+							$plugin->show_message('Comment deleted');
+						}
+						
+						global $wpdb;
+				
+						$sql = 'SELECT comment_ID FROM ' . $wpdb->comments . ' WHERE `comment_author_IP` = %s';
+						$preparedsql = $wpdb->prepare($sql, $ip);
+						$results = $wpdb->get_results($preparedsql, ARRAY_A);
+						
+						foreach($results as $row)
+						{
+							wp_delete_comment($row['comment_ID']);
+						}
+						
+						$plugin->show_message('All comments from same IP deleted');
+				
 					}					
 				}
 				
@@ -287,7 +304,7 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 		$author = $commentdata['comment_author'];
 		$url = $commentdata['comment_author_url'];
 		$comment_content = $commentdata['comment_content'];
-
+		
 		if (!empty ($email)) {
 			$count = $this->check_count('comment_author_email', $email);
 			$temp = $this->compare_counts($count, 'comment_author_email', $commentdata);
@@ -354,14 +371,14 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 						$body .= "$key : $val \n";
 					}
 
-					
-					echo $this->language['explain'];
-					echo '<br/>We found a spamword in your comment: '.$word;
-
 					$commment_key = $this->store_comment($commentdata,'killed');
 					$this->mail_details('rejected comment based on word', $body, $commment_key);
 					$this->update_stats('killed');
-					die('spam');
+					if ( defined('DOING_AJAX') )
+					{
+						die( __($this->language['explain']) );
+					}
+					wp_die( __($this->language['explain']), '', array('response' => 403) );
 				}
 			}
 		}
@@ -393,13 +410,14 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 								$body .= "$key : $val \n";
 							}
 
-							echo $this->language['explain'];
-							echo '<br/>We found a spamword in your comment: '.$word;
-
 							$commment_key = $this->store_comment($commentdata,'spammed');
 							$this->mail_details('rejected comment based on word', $body, $commment_key);							
 							$this->update_stats('spammed');
-							die('spam');
+							if ( defined('DOING_AJAX') )
+							{
+								die( __($this->language['explain']) );
+							}
+							wp_die( __($this->language['explain']), '', array('response' => 403) );
 						}
 					}
 				}
