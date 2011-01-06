@@ -4,7 +4,7 @@
  Plugin URI: http://www.mijnpress.nl
  Description: Class and functions
  Author: Ramon Fincken
- Version: 0.6.5
+ Version: 0.6.6
  Author URI: http://www.mijnpress.nl
  */
 
@@ -15,7 +15,7 @@ if(!class_exists('mijnpress_plugin_framework'))
 	include('mijnpress_plugin_framework.php');
 }
 
-define('PLUGIN_ANTISPAM_FOR_ALL_FIELDS_VERSION', '0.6.5');
+define('PLUGIN_ANTISPAM_FOR_ALL_FIELDS_VERSION', '0.6.6');
 
 if(!class_exists('antispam_for_all_fields_core'))
 {
@@ -80,17 +80,21 @@ function plugin_antispam_for_all_fields_stats() {
  */
 function plugin_antispam_for_all_fields($status) {
 	global $commentdata;
-	
+
 	$afaf = new antispam_for_all_fields();
+
 	$afaf->do_bugfix();
+
 	$temp = $afaf->init($status, $commentdata);
+
 
 	// Sometimes an IP is not added, so lets do that here ;)
 	if(empty($commentdata['comment_author_IP']))
 	{
-		$commentdata['comment_author_IP'] = $this->user_ip;
+		$commentdata['comment_author_IP'] = $afaf->user_ip;
 	}	
 	
+
 	return $temp;
 }
 

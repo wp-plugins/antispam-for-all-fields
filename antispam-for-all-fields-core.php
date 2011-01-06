@@ -66,7 +66,6 @@ class antispam_for_all_fields_core extends mijnpress_plugin_framework
 			'*penis*',
 			'*fuck*',
 			'*asian*',
-			'*romot*',
 			'*shippin*',
 			'*nude*',
 			'*gay*',

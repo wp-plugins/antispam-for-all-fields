@@ -3,8 +3,8 @@ Contributors: Ramon Fincken
 Donate link: http://donate.ramonfincken.com
 Tags: spam,antispam,phpbbantispam,anti-spam,wordpressantispam
 Requires at least: 2.0.2
-Tested up to: 3.0.3
-Stable tag: 0.6.5
+Tested up to: 3.0.4
+Stable tag: 0.6.6
 
 Plugin to reject spam. Port from same author from http://www.phpbbantispam.com
 Actually visits the URL from commenter to spider for spamwords.
@@ -36,6 +36,9 @@ The support forums over here, drop me a tweet to notify me of your support topic
 
 
 == Changelog ==
+
+= 0.6.6 =
+Bugfix: used $this instead of $afaf object for IP purposes, sorry!
 
 = 0.6.5 =
 Added: nice wp-die message if a comment is held for moderation<br>
