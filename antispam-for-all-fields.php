@@ -4,7 +4,7 @@
  Plugin URI: http://www.mijnpress.nl
  Description: Class and functions
  Author: Ramon Fincken
- Version: 0.6.6
+ Version: 0.6.8
  Author URI: http://www.mijnpress.nl
  */
 
@@ -92,8 +92,8 @@ function plugin_antispam_for_all_fields($status) {
 	if(empty($commentdata['comment_author_IP']))
 	{
 		$commentdata['comment_author_IP'] = $afaf->user_ip;
-	}	
-	
+	}
+
 
 	return $temp;
 }
@@ -120,21 +120,21 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 		$this->plugin_class = 'antispam_for_all_fields';
 		$this->plugin_filename = 'antispam-for-all-fields/antispam-for-all-fields.php';
 		$this->plugin_config_url = 'plugins.php?page='.$this->plugin_filename;
-		
+
 		$this->language = array(); // TODO make seperate file
 		$this->language['explain'] = 'Thank you for your comment!. Your comment has been temporary held by our antispam system for moderation. <br/><strong>Site administration has been notified and will approve your comment after review.</strong><br/><br/>Do not re-submit your comment!';
 
 		// Defaults
 		$this->wpdb_spam_status = 'spam';
 		$this->store_comment_in_days = 7;
-		
+
 		// Defaults, falltrough by admin panel settings
 		$this->limits['lower'] = 2;
 		$this->limits['upper'] = 10;
 		$this->limits['numbersites'] = 10;
 		$this->mail['sent'] = true;
-		$this->mail['admin'] = ''; // '' == 'default' and will use admin_email. Values:  '' || 'default' || 'e@mail.com'		
-		
+		$this->mail['admin'] = ''; // '' == 'default' and will use admin_email. Values:  '' || 'default' || 'e@mail.com'
+
 		$installed = get_option('plugin_antispam_for_all_fields_installed');
 		if($installed == 'true')
 		{
@@ -143,7 +143,7 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 			$this->limits = $settings['limits'];
 			$this->mail = $settings['mail'];
 			$this->words = $settings['words'];
-			
+				
 			// Upgrade?
 			$version = get_option('plugin_antispam_for_all_fields_version');
 			// TODO : compare with PLUGIN_ANTISPAM_FOR_ALL_FIELDS_VERSION and perform upgrades
@@ -153,20 +153,20 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 			// Make install
 			add_option('plugin_antispam_for_all_fields_installed','true');
 			add_option('plugin_antispam_for_all_fields_version',PLUGIN_ANTISPAM_FOR_ALL_FIELDS_VERSION);
-			
+				
 			$settings = array();
 			$settings['words'] = $this->get_words();
 			$settings['mail'] = $this->mail;
 			$settings['limits'] = $this->limits;
 			// Save default options
 			add_option('plugin_antispam_for_all_fields_settings',$settings);
-						
+
 			// Store
 			$this->words = $settings['words'];
 		}
-		
+
 		$this->user_ip = htmlspecialchars(preg_replace('/[^0-9a-fA-F:., ]/', '', $_SERVER['REMOTE_ADDR']));
-		$this->user_ip_fwd = htmlspecialchars(preg_replace('/[^0-9a-fA-F:., ]/', '', @$_SERVER['HTTP_X_FORWARDED_FOR'])); // For future use		
+		$this->user_ip_fwd = htmlspecialchars(preg_replace('/[^0-9a-fA-F:., ]/', '', @$_SERVER['HTTP_X_FORWARDED_FOR'])); // For future use
 	}
 
 	function antispam_for_all_fields()
@@ -201,15 +201,15 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 	{
 		$plugin = new antispam_for_all_fields();
 		$plugin->content_start();
-	
+
 		// Handle submit here
 		if(isset($_POST['action']) && $_POST['action'] == 'afal_update')
 		{
 			$temp = $_POST['words'];
 			$_POST['words'] =explode("\n",$temp);
-			
+				
 			if($_POST['mail']['sent'] == 1) { $_POST['mail']['sent'] = true; } else { $_POST['mail']['sent'] = false; }
-			
+				
 			$settings_post = array();
 			$settings_post['words'] = $_POST['words'];
 			$settings_post['mail'] = $_POST['mail'];
@@ -217,14 +217,14 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 
 			// Append POST values
 			$settings = $settings_post;
-			
+				
 			// Update
 			update_option('plugin_antispam_for_all_fields_settings',$settings);
-			
+				
 			// Reload settings
 			$plugin = new antispam_for_all_fields();
 		}
-		
+
 		switch (@$_GET['action'])
 		{
 			case 'approve':
@@ -232,7 +232,7 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 				{
 					$comment_key = $_GET['comment_key'];
 					$commentdata = get_transient($comment_key);
-					
+						
 					if($commentdata === false)
 					{
 						$plugin->show_message('Could not find stored comment.<br/>Did you approve this one earlier on? If not .. must have been here more then '.$plugin->store_comment_in_days. ' days and was auto deleted.');
@@ -242,23 +242,23 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 						// Now insert
 						wp_insert_comment($commentdata);
 						$plugin->show_message('Comment approved');
-						
+
 						// Delete
 						delete_transient($comment_key);
 					}
-				}				
+				}
 				break;
 			case 'blacklist_ip':
 				if(isset($_GET['ip']))
 				{
 					$ip = trim(stripslashes($_GET['ip']));
-					
+						
 					// Ereg code from wp-spamfree
-					if (ereg("^([0-9]|[0-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.([0-9]|[0-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.([0-9]|[0-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.([0-9]|[0-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])$",$ip)) 
+					if (ereg("^([0-9]|[0-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.([0-9]|[0-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.([0-9]|[0-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.([0-9]|[0-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])$",$ip))
 					{
 						$plugin->blacklist_ip($ip);
 						$plugin->show_message('IP blacklisted');
-						
+
 						// Delete
 						if(isset($_GET['comment_key']))
 						{
@@ -266,33 +266,33 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 							delete_transient($comment_key);
 							$plugin->show_message('Comment deleted');
 						}
-						
+
 						global $wpdb;
-				
+
 						$sql = 'SELECT comment_ID FROM ' . $wpdb->comments . ' WHERE `comment_author_IP` = %s';
 						$preparedsql = $wpdb->prepare($sql, $ip);
 						$results = $wpdb->get_results($preparedsql, ARRAY_A);
-						
+
 						foreach($results as $row)
 						{
 							wp_delete_comment($row['comment_ID']);
 						}
-						
+
 						$plugin->show_message('All comments from same IP deleted');
-				
-					}					
+
+					}
 				}
-				
+
 				break;
-			
+					
 			default:
 				echo '<h1>Antispam for all fields settings</h1>';
 				echo '<p>Layout is not prio number 1 right now, but everything is working</p>';
 				include('admin_menu.php');
-			break;
+				break;
 		}
-				
-		
+
+
 		$plugin->content_end();
 	}
 
@@ -308,7 +308,7 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 		$author = $commentdata['comment_author'];
 		$url = $commentdata['comment_author_url'];
 		$comment_content = $commentdata['comment_content'];
-		
+
 		if (!empty ($email)) {
 			$count = $this->check_count('comment_author_email', $email);
 			$temp = $this->compare_counts($count, 'comment_author_email', $commentdata);
@@ -330,6 +330,28 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 		$temp = $this->compare_counts($count, 'comment_author_IP', $commentdata);
 		if ($temp) {
 			return $temp;
+		}
+
+		// WP blacklisted IP?
+		$ip_blacklisted = $this->ip_is_blacklisted($this->user_ip);
+		if($ip_blacklisted)
+		{
+			$body = "Details are below: \n";
+			$body .= "action: IP was found to be blacklisted, comment denied \n";
+
+			$body .= "IP adress " . $this->user_ip . "\n";
+
+			foreach ($commentdata as $key => $val) {
+				$body .= "$key : $val \n";
+			}
+				
+			$this->mail_details('rejected comment based on word', $body, false);
+			$this->update_stats('killed');
+			if ( defined('DOING_AJAX') )
+			{
+				die( __($this->language['explain']) );
+			}
+			wp_die( __($this->language['explain']), '', array('response' => 403) );
 		}
 
 
@@ -415,7 +437,7 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 							}
 
 							$commment_key = $this->store_comment($commentdata,'spammed');
-							$this->mail_details('rejected comment based on word', $body, $commment_key);							
+							$this->mail_details('rejected comment based on word', $body, $commment_key);
 							$this->update_stats('spammed');
 							if ( defined('DOING_AJAX') )
 							{

@@ -3,8 +3,8 @@ Contributors: Ramon Fincken
 Donate link: http://donate.ramonfincken.com
 Tags: spam,antispam,phpbbantispam,anti-spam,wordpressantispam
 Requires at least: 2.0.2
-Tested up to: 3.0.4
-Stable tag: 0.6.6
+Tested up to: 3.1
+Stable tag: 0.6.8
 
 Plugin to reject spam. Port from same author from http://www.phpbbantispam.com
 Actually visits the URL from commenter to spider for spamwords.
@@ -36,6 +36,11 @@ The support forums over here, drop me a tweet to notify me of your support topic
 
 
 == Changelog ==
+
+= 0.6.8 =
+"So fine I scipped a number"<br>
+Added: if IP-adress is present in your WordPress blacklist (see Settings -> Discussion -> Blacklist), reject comment from that IP-adress
+Added: if IP-adress is present in your WordPress blacklist, prevent double enties
 
 = 0.6.6 =
 Bugfix: used $this instead of $afaf object for IP purposes, sorry!

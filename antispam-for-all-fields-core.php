@@ -80,9 +80,12 @@ class antispam_for_all_fields_core extends mijnpress_plugin_framework
 	 * @param string $ip
 	 */
 	protected function blacklist_ip($ip) {
-		$blacklist_keys = trim(stripslashes(get_option('blacklist_keys')));
-		$blacklist_keys_update = $blacklist_keys."\n".$ip;
-		update_option('blacklist_keys', $blacklist_keys_update);
+		if(!$this->ip_in_blacklist($ip))
+		{
+			$blacklist_keys = trim(stripslashes(get_option('blacklist_keys')));
+			$blacklist_keys_update = $blacklist_keys."\n".$ip;
+			update_option('blacklist_keys', $blacklist_keys_update);
+		}
 	}
 	
 	
@@ -103,9 +106,13 @@ class antispam_for_all_fields_core extends mijnpress_plugin_framework
 		
 		$blogname = get_option('blogname');
 
-		$body ="This comment is stored for ".$this->store_comment_in_days. " days.\n";
-		$body .= sprintf( __('Approve it: %s'), admin_url($this->plugin_config_url."&action=approve&comment_key=$commment_key") ) . "\r\n";
-		$body .= sprintf( __('Blacklist IP: %s'), admin_url($this->plugin_config_url."&action=blacklist_ip&ip=".$this->user_ip."&comment_key=$commment_key") ) . "\r\n\r\n";
+		$body = '';
+		if(isset($commment_key) && !empty($commment_key))
+		{
+			$body ="This comment is stored for ".$this->store_comment_in_days. " days.\n";
+			$body .= sprintf( __('Approve it: %s'), admin_url($this->plugin_config_url."&action=approve&comment_key=$commment_key") ) . "\r\n";
+			$body .= sprintf( __('Blacklist IP: %s'), admin_url($this->plugin_config_url."&action=blacklist_ip&ip=".$this->user_ip."&comment_key=$commment_key") ) . "\r\n\r\n";
+		}
 		
 		$body .= $mailbody;
 		
@@ -411,6 +418,53 @@ class antispam_for_all_fields_core extends mijnpress_plugin_framework
 	}
 	// ---------------- CHANGE STRING FUNCTIONS
 
+	/**
+	 * Checks if IP is blacklisted, protected function
+	 * @param string $ip
+	 * @return boolean
+	 */
+	protected function ip_is_blacklisted($ip)
+	{
+		return $this->ip_in_blacklist($ip);
+	}
+	
+	/**
+	 * Checks if IP is blacklisted, private function
+	 * Partial/rewrote code from: function wp_blacklist_check($author, $email, $url, $comment, $user_ip, $user_agent)
+	 * @param string $ip
+	 * @return boolean
+	 */
+	private function ip_in_blacklist($ip)
+	{
+		$is_listed = false;
+		$mod_keys = trim( get_option('blacklist_keys') );
+		if ( '' == $mod_keys )
+			return false; // If moderation keys are empty
+		$words = explode("\n", $mod_keys );
+	
+		foreach ( (array) $words as $word ) {
+			$word = trim($word);
+	
+			// Skip empty lines
+			if ( empty($word)) { continue; }
+			
+			if(!$is_listed)
+			{
+				// Do some escaping magic so that '#' chars in the
+				// spam words don't break things:
+				$word = preg_quote($word, '#');
+	
+				$pattern = "#$word#i";
+				if (preg_match($pattern, $ip))
+				{
+					$is_listed = true;
+				}
+			}
+		}
+
+		return $is_listed;
+	}
+	
 	/**
 	 * Returns internal SQL results
 	 */

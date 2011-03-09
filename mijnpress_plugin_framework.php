@@ -40,6 +40,9 @@
  * 1.3.1
  * Modified: addPluginSubMenu
  * Added: New plugins
+ * 
+ * 1.3.2
+ * Added: New plugins
  * ------------------------------------------------------------------
  * 
  */
@@ -52,7 +55,7 @@ class mijnpress_plugin_framework
 {
     var $showcredits = true;
     var $showcredits_fordevelopers = true;
-    var $all_plugins = array('Admin renamer extended','Find replace','Simple add pages or posts','Force apply terms and conditions','GTmetrix website performance','Antispam for all fields','Mass Delete Tags','Auto Prune Posts','Warm cache','See attachments','Automatic Comment Scheduler','Register plus redux export users');
+    var $all_plugins = array('Admin renamer extended','Find replace','Simple add pages or posts','Force apply terms and conditions','GTmetrix website performance','Antispam for all fields','Mass Delete Tags','Auto Prune Posts','Warm cache','See attachments','Automatic Comment Scheduler','Register plus redux export users','Subscribe2 widget');
     
     /**
      * Left menu display in Plugin menu
