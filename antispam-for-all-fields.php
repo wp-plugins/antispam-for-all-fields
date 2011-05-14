@@ -4,7 +4,7 @@
  Plugin URI: http://www.mijnpress.nl
  Description: Class and functions
  Author: Ramon Fincken
- Version: 0.6.8
+ Version: 0.6.9
  Author URI: http://www.mijnpress.nl
  */
 
@@ -15,7 +15,7 @@ if(!class_exists('mijnpress_plugin_framework'))
 	include('mijnpress_plugin_framework.php');
 }
 
-define('PLUGIN_ANTISPAM_FOR_ALL_FIELDS_VERSION', '0.6.6');
+define('PLUGIN_ANTISPAM_FOR_ALL_FIELDS_VERSION', '0.6.9');
 
 if(!class_exists('antispam_for_all_fields_core'))
 {
@@ -29,6 +29,7 @@ add_filter('pre_comment_approved', 'plugin_antispam_for_all_fields', 0);
 add_action('activity_box_end', 'plugin_antispam_for_all_fields_stats');
 
 // Disabled due to sessions, I want to store it otherwise ( I know that session_start() is an option )
+// Solution -> transient
 // add_action ('comment_form', 'plugin_antispam_for_all_fields_insertfields');
 // add_action ('comment_post', 'plugin_antispam_for_all_fields_checkfields');
 
@@ -268,7 +269,36 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 						}
 
 						global $wpdb;
-
+						
+						if(isset($_GET['blacklist_extra']))
+						{
+							// Same email?
+							$sql = 'SELECT comment_ID FROM ' . $wpdb->comments . ' WHERE comment_author_email IN (';
+							$sql .= 'SELECT comment_author_email FROM ' . $wpdb->comments . ' WHERE `comment_author_IP` = %s';
+							$sql .= ')';
+							$preparedsql = $wpdb->prepare($sql, $ip);
+							$results = $wpdb->get_results($preparedsql, ARRAY_A);
+		
+							foreach($results as $row)
+							{
+								wp_delete_comment($row['comment_ID']);
+							}
+							$plugin->show_message('All comments with same email deleted');
+	
+							// Same URL?
+							$sql = 'SELECT comment_ID FROM ' . $wpdb->comments . ' WHERE comment_author_url IN (';
+							$sql .= 'SELECT comment_author_url FROM ' . $wpdb->comments . ' WHERE `comment_author_IP` = %s';
+							$sql .= ')';
+							$preparedsql = $wpdb->prepare($sql, $ip);
+							$results = $wpdb->get_results($preparedsql, ARRAY_A);
+		
+							foreach($results as $row)
+							{
+								wp_delete_comment($row['comment_ID']);
+							}
+							$plugin->show_message('All comments with same URL deleted');
+						}
+						
 						$sql = 'SELECT comment_ID FROM ' . $wpdb->comments . ' WHERE `comment_author_IP` = %s';
 						$preparedsql = $wpdb->prepare($sql, $ip);
 						$results = $wpdb->get_results($preparedsql, ARRAY_A);
@@ -300,6 +330,18 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 	 * Core function to init spamchecks
 	 */
 	function init($status, $commentdata) {
+		// WP blacklisted IP?
+		$ip_blacklisted = $this->ip_is_blacklisted($this->user_ip);
+		if($ip_blacklisted)
+		{
+			$this->update_stats('killed');
+			if ( defined('DOING_AJAX') )
+			{
+				die( __($this->language['explain']) );
+			}
+			wp_die( __($this->language['explain']), '', array('response' => 403) );
+		}
+		
 		if ($commentdata['comment_type'] == 'trackback' || $commentdata['comment_type'] == 'pingback') {
 			return $status;
 		}
@@ -309,6 +351,7 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 		$url = $commentdata['comment_author_url'];
 		$comment_content = $commentdata['comment_content'];
 
+		
 		if (!empty ($email)) {
 			$count = $this->check_count('comment_author_email', $email);
 			$temp = $this->compare_counts($count, 'comment_author_email', $commentdata);
@@ -332,27 +375,6 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 			return $temp;
 		}
 
-		// WP blacklisted IP?
-		$ip_blacklisted = $this->ip_is_blacklisted($this->user_ip);
-		if($ip_blacklisted)
-		{
-			$body = "Details are below: \n";
-			$body .= "action: IP was found to be blacklisted, comment denied \n";
-
-			$body .= "IP adress " . $this->user_ip . "\n";
-
-			foreach ($commentdata as $key => $val) {
-				$body .= "$key : $val \n";
-			}
-				
-			$this->mail_details('rejected comment based on word', $body, false);
-			$this->update_stats('killed');
-			if ( defined('DOING_AJAX') )
-			{
-				die( __($this->language['explain']) );
-			}
-			wp_die( __($this->language['explain']), '', array('response' => 403) );
-		}
 
 
 		if (!empty ($comment_content)) {
@@ -365,6 +387,7 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 				$body .= "action: found ".$number_of_sites. " URIs in comment that is a lot, comment marked as spam \n";
 
 				$body .= "IP adress " . $this->user_ip . "\n";
+				$body .= "Email adress " . $email . "\n";
 				$body .= "low threshold " . $this->limits['lower'] . "\n";
 				$body .= "upper threshold " . $this->limits['upper'] . "\n";
 
@@ -388,6 +411,7 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 					$body .= "action: found spamword in comment, comment denied \n";
 
 					$body .= "IP adress " . $this->user_ip . "\n";
+					$body .= "Email adress " . $email . "\n";
 					$body .= "low threshold " . $this->limits['lower'] . "\n";
 					$body .= "upper threshold " . $this->limits['upper'] . "\n";
 
@@ -427,6 +451,7 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 							$body .= "action: I visited URL of commenter, found spamword on that page, comment denied \n";
 
 							$body .= "IP adress " . $this->user_ip . "\n";
+							$body .= "Email adress " . $email . "\n";
 							$body .= "low threshold " . $this->limits['lower'] . "\n";
 							$body .= "upper threshold " . $this->limits['upper'] . "\n";
 

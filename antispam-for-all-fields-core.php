@@ -111,6 +111,7 @@ class antispam_for_all_fields_core extends mijnpress_plugin_framework
 		{
 			$body ="This comment is stored for ".$this->store_comment_in_days. " days.\n";
 			$body .= sprintf( __('Approve it: %s'), admin_url($this->plugin_config_url."&action=approve&comment_key=$commment_key") ) . "\r\n";
+			$body .= sprintf( __('Blacklist IP and remove same email and URL: %s'), admin_url($this->plugin_config_url."&action=blacklist_ip&blacklist_extra=true&ip=".$this->user_ip."&comment_key=$commment_key") ) . "\r\n\r\n";
 			$body .= sprintf( __('Blacklist IP: %s'), admin_url($this->plugin_config_url."&action=blacklist_ip&ip=".$this->user_ip."&comment_key=$commment_key") ) . "\r\n\r\n";
 		}
 		
@@ -215,8 +216,8 @@ class antispam_for_all_fields_core extends mijnpress_plugin_framework
 	public function do_bugfix() {
 		// I have no idea why some comments have an empty approved value.
 		// This is only occuring on 1 WP site, even with this plugin disabled!
-		if(true)
-		{
+	
+		if (version_compare(PLUGIN_ANTISPAM_FOR_ALL_FIELDS_VERSION, '0.6.9', '< ')) {
 			global $wpdb;
 
 			$sql = 'UPDATE ' . $wpdb->comments . ' SET comment_approved = 0 WHERE comment_approved = \'\'';
