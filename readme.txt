@@ -32,7 +32,7 @@ Plugin does a lot more such as:<br>
 
 = I have a lot of questions and I want support where can I go? =
 
-The support forums over here, drop me a tweet to notify me of your support topic over here.<br>
+<a href="http://pluginsupport.mijnpress.nl/">http://pluginsupport.mijnpress.nl/</a> or drop me a tweet to notify me of your support topic over here.<br>
 I always check my tweets, so mention my name with @ramonfincken and your problem.
 
 
@@ -40,7 +40,7 @@ I always check my tweets, so mention my name with @ramonfincken and your problem
 
 = 0.6.9 =
 Changed: Do not sent an email if IP is blacklisted<br>
-Changed: DO IP blacklist check first<br>
+Changed: Do IP blacklist check first<br>
 Changed: IP blacklist now also checks for trackbacks and trackbacks<br>
 Added: Remove all records with same mail address OR same URL for this IP
 
