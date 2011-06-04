@@ -4,7 +4,7 @@
  Plugin URI: http://www.mijnpress.nl
  Description: Class and functions
  Author: Ramon Fincken
- Version: 0.6.9
+ Version: 0.7.0
  Author URI: http://www.mijnpress.nl
  */
 
@@ -15,7 +15,7 @@ if(!class_exists('mijnpress_plugin_framework'))
 	include('mijnpress_plugin_framework.php');
 }
 
-define('PLUGIN_ANTISPAM_FOR_ALL_FIELDS_VERSION', '0.6.9');
+define('PLUGIN_ANTISPAM_FOR_ALL_FIELDS_VERSION', '0.7.0');
 
 if(!class_exists('antispam_for_all_fields_core'))
 {
@@ -28,6 +28,7 @@ add_filter('pre_comment_approved', 'plugin_antispam_for_all_fields', 0);
 // Shows statistics
 add_action('activity_box_end', 'plugin_antispam_for_all_fields_stats');
 
+// I don't know how AJAX plugins react to this .. should work fine -> TODO test this ;)
 // Disabled due to sessions, I want to store it otherwise ( I know that session_start() is an option )
 // Solution -> transient
 // add_action ('comment_form', 'plugin_antispam_for_all_fields_insertfields');
@@ -58,7 +59,6 @@ function plugin_antispam_for_all_fields_insertfields()
 
 	set_transient('plugin_afaf_nonce1', $nonce1, 60*60); // 60*60 = 1hour
 
-
 	$nonce2= wp_create_nonce('plugin_afaf2');
 	$_SESSION['plugin_afaf_nonce2'] = $nonce2;
 	echo '<input type="hidden" name="'.$nonce1.'" value="'.$nonce2.'" />';
@@ -83,18 +83,14 @@ function plugin_antispam_for_all_fields($status) {
 	global $commentdata;
 
 	$afaf = new antispam_for_all_fields();
-
 	$afaf->do_bugfix();
-
 	$temp = $afaf->init($status, $commentdata);
-
 
 	// Sometimes an IP is not added, so lets do that here ;)
 	if(empty($commentdata['comment_author_IP']))
 	{
 		$commentdata['comment_author_IP'] = $afaf->user_ip;
 	}
-
 
 	return $temp;
 }
@@ -135,6 +131,7 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 		$this->limits['numbersites'] = 10;
 		$this->mail['sent'] = true;
 		$this->mail['admin'] = ''; // '' == 'default' and will use admin_email. Values:  '' || 'default' || 'e@mail.com'
+		$this->api_stopforumspam = 1;
 
 		$installed = get_option('plugin_antispam_for_all_fields_installed');
 		if($installed == 'true')
@@ -143,11 +140,16 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 			$settings = get_option('plugin_antispam_for_all_fields_settings');
 			$this->limits = $settings['limits'];
 			$this->mail = $settings['mail'];
+			$this->api_stopforumspam = $settings['api_stopforumspam'];
 			$this->words = $settings['words'];
 				
 			// Upgrade?
 			$version = get_option('plugin_antispam_for_all_fields_version');
-			// TODO : compare with PLUGIN_ANTISPAM_FOR_ALL_FIELDS_VERSION and perform upgrades
+			// Compare with PLUGIN_ANTISPAM_FOR_ALL_FIELDS_VERSION and perform upgrades
+			if($this->is_admin())
+			{
+				$this->upgrade_check($version);
+			}
 		}
 		else
 		{
@@ -159,6 +161,8 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 			$settings['words'] = $this->get_words();
 			$settings['mail'] = $this->mail;
 			$settings['limits'] = $this->limits;
+			$settings['api_stopforumspam'] = $this->api_stopforumspam;
+
 			// Save default options
 			add_option('plugin_antispam_for_all_fields_settings',$settings);
 
@@ -180,6 +184,91 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 		);
 	}
 
+	/**
+	 * Checks if an upgrade is needed and performs the upgrade
+	 * @param unknown_type $currentversion
+	 */
+	function upgrade_check($currentversion)
+	{
+		// Need update?
+		if (version_compare($currentversion, PLUGIN_ANTISPAM_FOR_ALL_FIELDS_VERSION, '<')) {
+			
+			if (version_compare($currentversion, "0.7.0", '<')) {
+				$this->perfom_upgrade("0.7.0");
+			}
+			
+			// Write current version to DB
+			update_option('plugin_antispam_for_all_fields_version',PLUGIN_ANTISPAM_FOR_ALL_FIELDS_VERSION);
+			$this->show_message('Antispam for all fields: Upgrade succesfull');
+		}
+
+	}
+	
+	/**
+	 * Calls the functions needed for this upgrade
+	 * @param unknown_type $step
+	 */
+	private function perfom_upgrade($step)
+	{
+		$upgrade_todo=array();
+		
+		// Decision logic
+		switch ($step)
+		{
+			case "0.7.0":
+				$upgrade_todo['wordlist'] = true;
+				$settings = get_option('plugin_antispam_for_all_fields_settings');
+				if(!isset($this->api_stopforumspam))
+				{
+					$settings['api_stopforumspam'] = 1;
+					update_option('plugin_antispam_for_all_fields_settings',$settings);
+				}			
+			break;
+		}
+		
+		// GOGOGO
+		if(isset($upgrade_todo['wordlist']))
+		{
+			$this->upgrade_wordlist($step);
+		}
+	}
+	
+	private function upgrade_wordlist($step)
+	{
+		$upgradewordlist = array();
+
+		$upgradewordlist["0.7.0"] = array('SEOPlugins.org');
+
+		$newwordlist = array();
+		$upgraded_list = false;
+
+		foreach($this->words as $word)
+		{
+			$word = str_replace(array("\r","\n"),array('',''),$word);
+			$newwordlist[] = $word;
+		}
+
+		foreach($upgradewordlist[$step] as $checkfor)
+		{
+			if(!in_array('*'.$checkfor.'*', $newwordlist))
+			{
+				$upgraded_list = true;
+				$newwordlist[] = '*'.$checkfor.'*';
+			}
+		}
+
+		if($upgraded_list)
+		{
+			// Store
+			$settings['words'] = $newwordlist;
+			update_option('plugin_antispam_for_all_fields_settings',$settings);
+				
+			$this->words = $settings['words'];
+			$this->show_message('Antispam for all fields: Wordlist has been updated');
+		}
+	}
+	
+	
 	function addPluginSubMenu()
 	{
 		$plugin = new antispam_for_all_fields();
@@ -207,14 +296,15 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 		if(isset($_POST['action']) && $_POST['action'] == 'afal_update')
 		{
 			$temp = $_POST['words'];
-			$_POST['words'] =explode("\n",$temp);
-				
+			$_POST['words'] = explode("\n",$temp);
+			
 			if($_POST['mail']['sent'] == 1) { $_POST['mail']['sent'] = true; } else { $_POST['mail']['sent'] = false; }
 				
 			$settings_post = array();
 			$settings_post['words'] = $_POST['words'];
 			$settings_post['mail'] = $_POST['mail'];
 			$settings_post['limits'] = $_POST['limits'];
+			$settings_post['api_stopforumspam'] = $_POST['api_stopforumspam'];
 
 			// Append POST values
 			$settings = $settings_post;
@@ -402,11 +492,9 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 			}
 
 			foreach ($this->words as $word) {
-
 				$string_is_spam = $this->string_is_spam($word, $comment_content);
 
 				if ($string_is_spam) {
-
 					$body = "Details are below: \n";
 					$body .= "action: found spamword in comment, comment denied \n";
 
@@ -431,7 +519,34 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 					wp_die( __($this->language['explain']), '', array('response' => 403) );
 				}
 			}
-		}
+			
+			
+			// Any uri found?
+			if (preg_match('/^(.*?)(http)(.*?)$/', $comment_content)) {
+				// Protects
+				// random <a href="http://website.com" rel="nofollow">random</a>, [url=http://website.com]random[/url], [link=http://website.com]random[/link], http://website.com
+				// random <a href="http://website.com">random</a>, [url=http://website.com]random[/url], [link=http://website.com]random[/link], http://website.com
+				if (preg_match('/^([[:alnum:]])( ?)(.*?)(href)(.*?)((nofollow)?(.*?))(url)(.*?)(link)(.*?)$/', $comment_content)) {
+					$this->update_stats('spammed');
+					if ( defined('DOING_AJAX') )
+					{
+						die( __($this->language['explain']) );
+					}
+					wp_die( __($this->language['explain']), '', array('response' => 403) );
+				}
+				// Protects
+				// random [url=http://website.com]random[/url], [link=http://website.com]random[/link], http://website.com
+				if (preg_match('/^([[:alnum:]])( ?)(.*?)(url)(.*?)(link)(.*?)$/', $comment_content)) {
+					$this->update_stats('spammed');
+					if ( defined('DOING_AJAX') )
+					{
+						die( __($this->language['explain']) );
+					}
+					wp_die( __($this->language['explain']), '', array('response' => 403) );
+				}				
+			}
+			
+		} // !empty comment_content
 
 		if (!empty ($url)) {
 			$count = $this->check_count('comment_author_url', $url);
@@ -474,6 +589,71 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 				}
 			}
 		}
+		
+				
+		if($this->api_stopforumspam == 1)
+		{
+			// IP
+			$ip_check = unserialize(wp_remote_retrieve_body(wp_remote_get('http://www.stopforumspam.com/api?ip='.$this->user_ip.'&f=serial')));
+			if(isset($ip_check['success']) && $ip_check['success'])
+			{
+				if($ip_check['ip']['frequency'] > $this->limits['upper'])
+				{
+					$body = "Details are below: \n";
+					$body .= "action: I checked IP against www.stopforumspam.com, exceeded upper threshold, comment denied \n";
+
+					$body .= "IP adress " . $this->user_ip . "\n";
+					$body .= "Email adress " . $email . "\n";
+					$body .= "low threshold " . $this->limits['lower'] . "\n";
+					$body .= "upper threshold " . $this->limits['upper'] . "\n";
+					$body .= "Details: http://www.stopforumspam.com/ipcheck/".$this->user_ip. "\n";
+
+					foreach ($commentdata as $key => $val) {
+						$body .= "$key : $val \n";
+					}
+
+					$commment_key = $this->store_comment($commentdata,'spammed');
+					$this->mail_details('rejected comment based on spamdatabase lookup', $body, $commment_key);
+					$this->update_stats('spammed');
+					if ( defined('DOING_AJAX') )
+					{
+						die( __($this->language['explain']) );
+					}
+					wp_die( __($this->language['explain']), '', array('response' => 403) );
+				}
+			}
+
+			// Email
+			$email_check = unserialize(wp_remote_retrieve_body(wp_remote_get('http://www.stopforumspam.com/api?email='.$email.'&f=serial')));
+			if(isset($email_check['success']) && $email_check['success'])
+			{
+				if($email_check['email']['frequency'] > $this->limits['upper'])
+				{
+					$body = "Details are below: \n";
+					$body .= "action: I checked IP against www.stopforumspam.com, exceeded upper threshold, comment denied \n";
+
+					$body .= "IP adress " . $this->user_ip . "\n";
+					$body .= "Email adress " . $email . "\n";
+					$body .= "low threshold " . $this->limits['lower'] . "\n";
+					$body .= "upper threshold " . $this->limits['upper'] . "\n";
+					$body .= "Details: http://www.stopforumspam.com/search/?q=".$email. "\n";
+
+					foreach ($commentdata as $key => $val) {
+						$body .= "$key : $val \n";
+					}
+								
+					$commment_key = $this->store_comment($commentdata,'spammed');
+					$this->mail_details('rejected comment based on spamdatabase lookup', $body, $commment_key);
+					$this->update_stats('spammed');
+					if ( defined('DOING_AJAX') )
+					{
+						die( __($this->language['explain']) );
+					}
+					wp_die( __($this->language['explain']), '', array('response' => 403) );
+				}
+			}
+		}	
+		
 		return $status;
 	}
 }

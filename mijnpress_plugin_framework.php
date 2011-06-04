@@ -43,6 +43,9 @@
  * 
  * 1.3.2
  * Added: New plugins
+ * 
+ * 1.3.3
+ * Added: Plugin support url 
  * ------------------------------------------------------------------
  * 
  */
@@ -75,6 +78,7 @@ class mijnpress_plugin_framework
         {
             if($config_url) $links[] = '<a href="'.$config_url.'">' . __('Settings') . '</a>';
             $links[] = '<a href="http://donate.ramonfincken.com">' . __('Donate') . '</a>';
+            $links[] = '<a href="http://pluginsupport.mijnpress.nl">' . __('Support') . '</a>';
             $links[] = '<a href="http://www.mijnpress.nl">' . __('Custom WordPress coding nodig?') . '</a>';
         }
         return $links;
@@ -194,7 +198,8 @@ function mijnpress_plugin_framework_showcredits($plugin_title,$all_plugins)
             This plugin was created by Ramon Fincken.<br>
 He likes to create WordPress websites and plugins (currently only Dutch customers) and he is co-admin at the <a href="http://www.linkedin.com/groups?about=&gid=1644947&trk=anet_ug_grppro">Dutch LinkedIn WordPress group</a>.<br/><br/>Visit his WordPress website at: <a href="http://www.mijnpress.nl">MijnPress.nl</a><br/>
 If you are a coder, you might like to visit <a href="http://www.ramonfincken.com/tag/wordpress.html">his WordPress blogposts</a>.
-<br/><br/><a href="http://donate.ramonfincken.com/">PayPal Donations</a> (even as small as $1,- or &euro;1,- are welcome!.
+<br/><br/><a href="http://pluginsupport.mijnpress.nl">Is this plugin broken? Report it here</a>
+<br/><a href="http://donate.ramonfincken.com/">PayPal Donations</a> (even as small as $1,- or &euro;1,- are welcome!.
             
         </div>
     </div>

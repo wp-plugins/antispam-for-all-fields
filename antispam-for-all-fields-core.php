@@ -18,11 +18,10 @@ class antispam_for_all_fields_core extends mijnpress_plugin_framework
 	 * Checks if regex is applicable for this word in a string
 	 */
 	public function string_is_spam($stringtotest, $spamword) {
-		$spamstatus = false;
 		if (preg_match("#\b(" . str_replace("\*", ".*?", preg_quote($stringtotest, '#')) . ")\b#i", $spamword)) {
-			$spamstatus = true;
+			return true;
 		}
-		return $spamstatus;
+		return false;
 	}
 
 	/**
@@ -70,7 +69,8 @@ class antispam_for_all_fields_core extends mijnpress_plugin_framework
 			'*nude*',
 			'*gay*',
 			'*wares*',
-			'*gambl*'
+			'*gambl*',
+			'*SEOPlugins.org*'
 			);
 			return $words;
 	}

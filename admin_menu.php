@@ -25,6 +25,11 @@ If a comment is spammed or denied, mail me?<br/>
 Email to: (leave blank for default email <u><?php echo get_option('admin_email'); ?></u>)<br/>
 <input type="text" name="mail[admin]" value="<?php echo $plugin->mail['admin']; ?>" />
 
+<br/><br/>
+<strong>Use external database service (stopforumspam.com)</strong>
+<br/>
+<input type="radio" name="api_stopforumspam" value="1" <?php if($plugin->api_stopforumspam == 1) echo 'checked="checked"'; ?>/>Yes
+<input type="radio" name="api_stopforumspam" value="0" <?php if(!$plugin->api_stopforumspam == 1) echo 'checked="checked"'; ?>/>No
 
 <br/><br/>
 <strong>Spamwords</strong>
