@@ -199,7 +199,7 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 			
 			// Write current version to DB
 			update_option('plugin_antispam_for_all_fields_version',PLUGIN_ANTISPAM_FOR_ALL_FIELDS_VERSION);
-			$this->show_message('Antispam for all fields: Upgrade succesfull');
+			$this->show_message('Antispam for all fields: Upgrade succesfull. Please visit the plugin settings page now.');
 		}
 
 	}
