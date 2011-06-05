@@ -4,7 +4,7 @@
  Plugin URI: http://www.mijnpress.nl
  Description: Class and functions
  Author: Ramon Fincken
- Version: 0.7.0
+ Version: 0.7.1
  Author URI: http://www.mijnpress.nl
  */
 
@@ -15,7 +15,7 @@ if(!class_exists('mijnpress_plugin_framework'))
 	include('mijnpress_plugin_framework.php');
 }
 
-define('PLUGIN_ANTISPAM_FOR_ALL_FIELDS_VERSION', '0.7.0');
+define('PLUGIN_ANTISPAM_FOR_ALL_FIELDS_VERSION', '0.7.1');
 
 if(!class_exists('antispam_for_all_fields_core'))
 {
@@ -150,6 +150,11 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 			{
 				$this->upgrade_check($version);
 			}
+			
+			// Check
+			if($this->limits['lower'] == 0 || empty($this->limits['lower'])) $this->limits['lower'] = 2;
+			if($this->limits['upper'] == 0 || empty($this->limits['upper'])) $this->limits['upper'] = 10;
+			if($this->limits['numbersites'] == 0 || empty($this->limits['numbersites'])) $this->limits['numbersites'] = 10;			
 		}
 		else
 		{
