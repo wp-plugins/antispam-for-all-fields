@@ -167,6 +167,11 @@ class antispam_for_all_fields_core extends mijnpress_plugin_framework
 	 * Checks if this value has been marked as spam before
 	 */
 	protected function compare_counts($count, $field, $commentdata) {
+		if($this->limits['upper'] == 0 || empty($this->limits['upper']))
+		{
+			$this->limits['upper'] = 10;
+		}
+		
 		if ($count > $this->limits['upper']) {
 			$body = "Details are below: \n";
 			$body .= "action: exceeded upper threshold, comment denied \n";
