@@ -4,7 +4,7 @@ Donate link: http://donate.ramonfincken.com
 Tags: spam,antispam,phpbbantispam,anti-spam,wordpressantispam
 Requires at least: 2.0.2
 Tested up to: 3.1.3
-Stable tag: 0.7.1
+Stable tag: 0.7.5
 
 Plugin to reject spam. Port from same author from http://www.phpbbantispam.com
 Actually visits the URL from commenter to spider for spamwords.
@@ -38,6 +38,9 @@ I always check my tweets, so mention my name with @ramonfincken and your problem
 
 
 == Changelog ==
+
+= 0.7.5 =
+Bugfix: Framework did not work on multisite, is_admin() problem.<br>If anyone could help me with that ? :)
 
 = 0.7.1 =
 Changed: Small settings check
