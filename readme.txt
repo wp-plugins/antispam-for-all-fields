@@ -3,7 +3,7 @@ Contributors: Ramon Fincken
 Donate link: http://donate.ramonfincken.com
 Tags: spam,antispam,phpbbantispam,anti-spam,wordpressantispam
 Requires at least: 2.0.2
-Tested up to: 3.1.3
+Tested up to: 3.3
 Stable tag: 0.7.5
 
 Plugin to reject spam. Port from same author from http://www.phpbbantispam.com

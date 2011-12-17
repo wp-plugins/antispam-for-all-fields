@@ -88,6 +88,21 @@ class antispam_for_all_fields_core extends mijnpress_plugin_framework
 		}
 	}
 	
+	// Antispam Extra V 0.2 By Budhiman
+	// add_action('check_comment_flood', array('AntispamExtra', 'check_referrer'));
+	// No comments without proper HTTP referer
+	function check_referrer() {
+
+		if (get_option('antispamextra_disallow_nonreferers')) {
+			if (!isset($_SERVER['HTTP_REFERER']) || $_SERVER['HTTP_REFERER'] == '' || strpos($_SERVER['HTTP_REFERER'], get_option('siteurl')) < 0) {
+				if (get_option('antispamextra_spam_response_mode')) {
+					header('HTTP/1.1 403 Forbidden');
+					die(get_option('antispamextra_message'));				
+				}
+				else die();
+			}
+		}
+	}	
 	
 	/**
 	 * Notifies admin or custom inserted replacement
