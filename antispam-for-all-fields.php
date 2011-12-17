@@ -4,7 +4,7 @@
  Plugin URI: http://www.mijnpress.nl
  Description: Class and functions
  Author: Ramon Fincken
- Version: 0.7.5
+ Version: 0.7.6
  Author URI: http://www.mijnpress.nl
  */
 
@@ -15,7 +15,7 @@ if(!class_exists('mijnpress_plugin_framework'))
 	include('mijnpress_plugin_framework.php');
 }
 
-define('PLUGIN_ANTISPAM_FOR_ALL_FIELDS_VERSION', '0.7.5');
+define('PLUGIN_ANTISPAM_FOR_ALL_FIELDS_VERSION', '0.7.6');
 
 if(!class_exists('antispam_for_all_fields_core'))
 {
@@ -551,6 +551,16 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 				}				
 			}
 			
+			// HTML?
+			if (preg_match('/^(<strong>)(.*?)(<\/strong>)(.*?)([(\.)])(.*?)([(\.)])(.*?)$/s', $comment_content) || preg_match('/^(<b>)(.*?)(<\/b>)(.*?)([(\.)])(.*?)([(\.)])(.*?)$/s', $comment_content)) {
+					$this->update_stats('spammed');
+					if ( defined('DOING_AJAX') )
+					{
+						die( __($this->language['explain']) );
+					}
+					wp_die( __($this->language['explain']), '', array('response' => 403) );					
+			}
+			
 		} // !empty comment_content
 
 		if (!empty ($url)) {
@@ -560,6 +570,26 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 				return $temp;
 			}
 
+			$nonsence_urls = array('www.google.','www.bing.');
+			$url = strtolower($url);
+			foreach($nonsence_urls as $url_to_find)
+			{
+				if(strstr($url, $url_to_find))
+				{
+					// Get lost
+					foreach ($commentdata as $key => $val) {
+						$body .= "$key : $val \n";
+					}
+
+					$this->update_stats('spammed');
+					if ( defined('DOING_AJAX') )
+					{
+						die( __($this->language['explain']) );
+					}
+					wp_die( __($this->language['explain']), '', array('response' => 403) );					
+				}
+			}
+			
 			// Now check for words
 			if ($html_body = wp_remote_retrieve_body(wp_remote_get($url))) {
 				if (!empty ($html_body)) {
