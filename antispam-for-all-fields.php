@@ -4,7 +4,7 @@
  Plugin URI: http://www.mijnpress.nl
  Description: Class and functions
  Author: Ramon Fincken
- Version: 0.7.6
+ Version: 0.7.7
  Author URI: http://www.mijnpress.nl
  */
 
@@ -437,14 +437,44 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 			wp_die( __($this->language['explain']), '', array('response' => 403) );
 		}
 		
-		if ($commentdata['comment_type'] == 'trackback' || $commentdata['comment_type'] == 'pingback') {
-			return $status;
-		}
-
 		$email = $commentdata['comment_author_email'];
 		$author = $commentdata['comment_author'];
 		$url = $commentdata['comment_author_url'];
 		$comment_content = $commentdata['comment_content'];
+				
+		// Trackback or pingback?
+		if ($commentdata['comment_type'] == 'trackback' || $commentdata['comment_type'] == 'pingback') {
+			
+			// Simple trackback validation with topsy blocker Stage 1
+			$tmpSender_IP = preg_replace('/[^0-9.]/', '', $_SERVER['REMOTE_ADDR'] );
+
+			$authDomainname = stbv_get_domainname_from_uri($url);
+			$tmpURL_IP = preg_replace('/[^0-9.]/', '', gethostbyname($authDomainname) );
+
+			if ( $tmpSender_IP != $tmpURL_IP) {
+				
+				$status = 'spam';
+				
+				$body = "Details are below: \n";
+				$body .= "action: ".'Sender\'s IP address (' . $tmpSender_IP . ') not equal to IP address of host (' . $tmpURL_IP . ')'."\n";
+
+				$body .= "IP adress " . $this->user_ip . "\n";
+				$body .= "Email adress " . $email . "\n";
+
+				foreach ($commentdata as $key => $val) {
+					$body .= "$key : $val \n";
+				}
+
+				$commment_key = $this->store_comment($commentdata,'spammed');
+				$this->mail_details('rejected spammed sender IP not equal to host IP', $body,$commment_key);
+				$this->update_stats('spammed');				
+			}
+			return $status;
+		}
+		
+		// Comments only
+
+
 
 		
 		if (!empty ($email)) {

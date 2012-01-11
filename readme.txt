@@ -1,10 +1,10 @@
 === Antispam for all fields ===
 Contributors: Ramon Fincken
 Donate link: http://donate.ramonfincken.com
-Tags: spam,antispam,phpbbantispam,anti-spam,wordpressantispam
+Tags: spam,antispam,phpbbantispam,anti-spam,wordpressantispam,comment,comments,pingback,trackback,ip,lookup
 Requires at least: 2.0.2
-Tested up to: 3.3
-Stable tag: 0.7.6
+Tested up to: 3.3.1
+Stable tag: 0.7.7
 
 Plugin to reject spam. Port from same author from http://www.phpbbantispam.com
 Actually visits the URL from commenter to spider for spamwords.
@@ -16,6 +16,7 @@ Actually visits the URL from commenter to spider for spamwords. <br>
 Plugin does a lot more such as (this list does not cover all antispam functions present):<br>
 * Count for number of web-URI's in comment<br>
 * Count on email, IP, URI compared with allready spammed comments<br>
+* Checks trackbacks and pingbacks for a valid IP adres (IP visitor must be same as webserver)<br>
 * Detailed information by email about the spammed comment. You can approve the comment later on, or blacklist the IP adres.<br>
 * Future feature: Add hidden fields with random names<br>
 Need PHP5 on your webserver. Does not work on PHP4 webservers.
@@ -38,6 +39,9 @@ I always check my tweets, so mention my name with @ramonfincken and your problem
 
 
 == Changelog ==
+= 0.7.7 =
+Added: Trackback and pingback stage 1, based on Simple trackback validation with topsy blocker Stage 1 
+
 = 0.7.6 =
 Added: New spam definitions
 
