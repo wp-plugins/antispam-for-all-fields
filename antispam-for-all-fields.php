@@ -4,7 +4,7 @@
  Plugin URI: http://www.mijnpress.nl
  Description: Class and functions
  Author: Ramon Fincken
- Version: 0.7.7
+ Version: 0.7.8
  Author URI: http://www.mijnpress.nl
  */
 
@@ -485,6 +485,20 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 			}
 		}
 
+		// Lots of (more then 25%) dots in mail and free-email?
+		$temp = explode('@',$email);
+		$domain = strtolower($temp[1]);
+		$split1len = strlen($temp[0]);
+		$dotlen = substr_count($temp[0],'.');
+		if(intval($dotlen/($split1len/100)) > 25)
+		{
+			if(in_array($domain,array('google.com','gmail.com','hotmail.com','live.com','mail.ru')))
+			{
+				$this->update_stats('spammed');
+				return 'spam';				
+			}
+		}		
+		
 		if (!empty ($author)) {
 			$count = $this->check_count('comment_author', $author);
 			$temp = $this->compare_counts($count, 'comment_author', $commentdata);

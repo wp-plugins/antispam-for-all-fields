@@ -4,7 +4,7 @@ Donate link: http://donate.ramonfincken.com
 Tags: spam,antispam,phpbbantispam,anti-spam,wordpressantispam,comment,comments,pingback,trackback,ip,lookup
 Requires at least: 2.0.2
 Tested up to: 3.3.1
-Stable tag: 0.7.7
+Stable tag: 0.7.8
 
 Plugin to reject spam. Port from same author from http://www.phpbbantispam.com
 Actually visits the URL from commenter to spider for spamwords.
@@ -39,6 +39,9 @@ I always check my tweets, so mention my name with @ramonfincken and your problem
 
 
 == Changelog ==
+= 0.7.8 =
+Added:  Lots of (more then 25%) dots in mail and free-email
+
 = 0.7.7 =
 Added: Trackback and pingback stage 1, based on Simple trackback validation with topsy blocker Stage 1 
 
