@@ -24,18 +24,6 @@
  * First release
  * Submenu, credits, get plugin url, show main/sidebar
  * 
- * 1.1
- * Changed: $all_plugins as var
- * Added: mijnpress_plugin_framework_showcredits_framework
- * Added: Info comments at top of file, with extend option info
- * 
- * 1.2
- * Added: is_admin()
- * 
- * 1.3
- * Added: get_plugin_url : $file = __FILE__
- * > To fix when multiple plugins use this framework.
- * Added: 'See attachments'
  * 
  * 1.3.1
  * Modified: addPluginSubMenu
@@ -52,6 +40,9 @@
  * 
  * 1.4.1
  * Added: New plugins
+ * 
+ * 1.5
+ * Changed: credits
  * ------------------------------------------------------------------
  * 
  */
@@ -139,10 +130,15 @@ class mijnpress_plugin_framework
      */
     function content_end()
     {
+        if($this->showcredits)
+        {
+        	echo '<br/><br/>Do you like this plugin? <a href="http://donate.ramonfincken.com/">PayPal Donations</a> (even as small as $1,- or &euro;1,- are welcome!.';
+        }
         echo '</div>';
         echo '<div style="width:20%; float: right; margin-right: 10px;">';
         $this->showcredits();
         echo '</div>';
+        
         echo '<div style="clear: both;"></div>';
     }
 
@@ -213,9 +209,7 @@ function mijnpress_plugin_framework_showcredits($plugin_title,$all_plugins)
             This plugin was created by Ramon Fincken.<br>
 He likes to create WordPress websites and plugins (currently only Dutch customers) and he is co-admin at the <a href="http://www.linkedin.com/groups?about=&gid=1644947&trk=anet_ug_grppro">Dutch LinkedIn WordPress group</a>.<br/><br/>Visit his WordPress website at: <a href="http://www.mijnpress.nl">MijnPress.nl</a><br/>
 If you are a coder, you might like to visit <a href="http://www.ramonfincken.com/tag/wordpress.html">his WordPress blogposts</a>.
-<br/><br/><a href="http://pluginsupport.mijnpress.nl">Is this plugin broken? Report it here</a>
-<br/><br/><a href="http://donate.ramonfincken.com/">PayPal Donations</a> (even as small as $1,- or &euro;1,- are welcome!.
-            
+<br/><br/><a href="http://pluginsupport.mijnpress.nl">Is this plugin broken? Report it here</a>            
         </div>
     </div>
 <?php 
