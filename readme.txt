@@ -4,7 +4,7 @@ Donate link: http://donate.ramonfincken.com
 Tags: spam,antispam,phpbbantispam,anti-spam,wordpressantispam,comment,comments,pingback,trackback,ip,lookup
 Requires at least: 2.0.2
 Tested up to: 3.3.1
-Stable tag: 0.7.8
+Stable tag: 0.7.9
 
 Plugin to reject spam. Port from same author from http://www.phpbbantispam.com
 Actually visits the URL from commenter to spider for spamwords.
@@ -19,7 +19,7 @@ Plugin does a lot more such as (this list does not cover all antispam functions 
 * Checks trackbacks and pingbacks for a valid IP adres (IP visitor must be same as webserver)<br>
 * Detailed information by email about the spammed comment. You can approve the comment later on, or blacklist the IP adres.<br>
 * Future feature: Add hidden fields with random names<br>
-Need PHP5 on your webserver. Does not work on PHP4 webservers.
+<small><strong>Need PHP5 on your webserver. Does not work on PHP4 webservers.</strong></small>
 
 <br>
 <br>Coding by: <a href="http://www.mijnpress.nl">MijnPress.nl</a> <a href="http://twitter.com/#!/ramonfincken">Twitter profile</a> <a href="http://wordpress.org/extend/plugins/profile/ramon-fincken">More plugins</a>
@@ -39,6 +39,12 @@ I always check my tweets, so mention my name with @ramonfincken and your problem
 
 
 == Changelog ==
+= 0.7.9 =
+Added: IP whois link in email to admin
+Added: Incorporated "No comments without proper HTTP referer" by "Antispam Extra V 0.2 By Budhiman"
+Changed: string_is_spam function
+Added: Useragent spam check
+
 = 0.7.8 =
 Added:  Lots of (more then 25%) dots in mail and free-email
 

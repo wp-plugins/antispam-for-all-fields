@@ -18,7 +18,10 @@ class antispam_for_all_fields_core extends mijnpress_plugin_framework
 	 * Checks if regex is applicable for this word in a string
 	 */
 	public function string_is_spam($stringtotest, $spamword) {
-		if (preg_match("#\b(" . str_replace("\*", ".*?", preg_quote($stringtotest, '#')) . ")\b#i", $spamword)) {
+		//if (preg_match("#\b(" . str_replace("\*", ".*?", preg_quote($stringtotest, '#')) . ")\b#i", $spamword)) {
+		
+		$spamword = trim($spamword,'*');
+		if (preg_match("/\b$spamword\b/i",$stringtotest)) {
 			return true;
 		}
 		return false;
@@ -87,23 +90,7 @@ class antispam_for_all_fields_core extends mijnpress_plugin_framework
 			update_option('blacklist_keys', $blacklist_keys_update);
 		}
 	}
-	
-	// Antispam Extra V 0.2 By Budhiman
-	// add_action('check_comment_flood', array('AntispamExtra', 'check_referrer'));
-	// No comments without proper HTTP referer
-	function check_referrer() {
 
-		if (get_option('antispamextra_disallow_nonreferers')) {
-			if (!isset($_SERVER['HTTP_REFERER']) || $_SERVER['HTTP_REFERER'] == '' || strpos($_SERVER['HTTP_REFERER'], get_option('siteurl')) < 0) {
-				if (get_option('antispamextra_spam_response_mode')) {
-					header('HTTP/1.1 403 Forbidden');
-					die(get_option('antispamextra_message'));				
-				}
-				else die();
-			}
-		}
-	}	
-	
 	/**
 	 * Notifies admin or custom inserted replacement
 	 */
@@ -128,6 +115,7 @@ class antispam_for_all_fields_core extends mijnpress_plugin_framework
 			$body .= sprintf( __('Approve it: %s'), admin_url($this->plugin_config_url."&action=approve&comment_key=$commment_key") ) . "\r\n";
 			$body .= sprintf( __('Blacklist IP and remove same email and URL: %s'), admin_url($this->plugin_config_url."&action=blacklist_ip&blacklist_extra=true&ip=".$this->user_ip."&comment_key=$commment_key") ) . "\r\n\r\n";
 			$body .= sprintf( __('Blacklist IP: %s'), admin_url($this->plugin_config_url."&action=blacklist_ip&ip=".$this->user_ip."&comment_key=$commment_key") ) . "\r\n\r\n";
+			$body .= "Ip info: http://www.whois.sc/".$this->user_ip. "\r\n\r\n";
 		}
 		
 		$body .= $mailbody;
@@ -496,6 +484,43 @@ class antispam_for_all_fields_core extends mijnpress_plugin_framework
 		$preparedsql = $wpdb->prepare($sql, $value, $this->wpdb_spam_status);
 		$results = $wpdb->get_results($preparedsql, ARRAY_A);
 		return $results[0]['numberofrows'];
+	}
+	
+	protected function check_user_agent_is_spam($useragent)
+	{
+		global $wpdb;
+
+		$sql = 'SELECT COUNT(`comment_agent`) AS numberofrows FROM ' . $wpdb->comments . ' WHERE comment_approved =%s';
+		$preparedsql = $wpdb->prepare($sql, $this->wpdb_spam_status);
+		$results = $wpdb->get_results($preparedsql, ARRAY_A);
+		$spammed = $results[0]['numberofrows'];
+
+		$sql = 'SELECT COUNT(`comment_agent`) AS numberofrows FROM ' . $wpdb->comments . ' WHERE comment_approved =%s';
+		$preparedsql = $wpdb->prepare($sql, 1);
+		$results = $wpdb->get_results($preparedsql, ARRAY_A);
+		$not_spammed = $results[0]['numberofrows'];
+		
+		if($spammed == 0)
+		{
+			return false;
+		}
+		
+		// Fallthrough if spammed > 0
+		
+		// Only spammed?
+		if($not_spammed == 0)
+		{
+			return $this->wpdb_spam_status;
+		}
+		
+		// Hits for spam and nonspam, but more spam?
+		if($spammed > $not_spammed)
+		{
+			// hmmz what to do?
+			return 'challenge';
+		}
+		
+		return false;
 	}
 }
 ?>

@@ -4,7 +4,7 @@
  Plugin URI: http://www.mijnpress.nl
  Description: Class and functions
  Author: Ramon Fincken
- Version: 0.7.8
+ Version: 0.7.9
  Author URI: http://www.mijnpress.nl
  */
 
@@ -15,7 +15,7 @@ if(!class_exists('mijnpress_plugin_framework'))
 	include('mijnpress_plugin_framework.php');
 }
 
-define('PLUGIN_ANTISPAM_FOR_ALL_FIELDS_VERSION', '0.7.6');
+define('PLUGIN_ANTISPAM_FOR_ALL_FIELDS_VERSION', '0.7.9');
 
 if(!class_exists('antispam_for_all_fields_core'))
 {
@@ -441,6 +441,7 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 		$author = $commentdata['comment_author'];
 		$url = $commentdata['comment_author_url'];
 		$comment_content = $commentdata['comment_content'];
+		$comment_agent = $commentdata['comment_agent'];
 				
 		// Trackback or pingback?
 		if ($commentdata['comment_type'] == 'trackback' || $commentdata['comment_type'] == 'pingback') {
@@ -472,10 +473,45 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 			return $status;
 		}
 		
-		// Comments only
+		// Comments only below this point
+	
+		// Antispam Extra V 0.2 By Budhiman
+		// No comments without proper HTTP referer
+		if (get_option('antispamextra_disallow_nonreferers')) {
+			if (!isset($_SERVER['HTTP_REFERER']) || $_SERVER['HTTP_REFERER'] == '' || strpos($_SERVER['HTTP_REFERER'], get_option('siteurl')) < 0) {
+				$this->update_stats('killed');
+				if ( defined('DOING_AJAX') )
+				{
+					die( __($this->language['explain']) );
+				}
+				wp_die( __($this->language['explain']), '', array('response' => 403) );				
+			}
+		}
 
 
+		if(!empty($comment_agent))
+		{
+			$check = $this->check_user_agent_is_spam($comment_agent);
+			if($check == $this->wpdb_spam_status)
+			{
+					// Get lost
+					foreach ($commentdata as $key => $val) {
+						$body .= "$key : $val \n";
+					}
 
+					$commment_key = $this->store_comment($commentdata,'spammed');
+					$this->mail_details('rejected spammed based comment agent', $body,$commment_key);
+					$this->update_stats('spammed');
+					return 'spam';
+			}
+			else
+			{
+				if($check == 'challenge')
+				{
+					
+				}
+			}
+		}
 		
 		if (!empty ($email)) {
 			$count = $this->check_count('comment_author_email', $email);
@@ -576,7 +612,7 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 				// random <a href="http://website.com" rel="nofollow">random</a>, [url=http://website.com]random[/url], [link=http://website.com]random[/link], http://website.com
 				// random <a href="http://website.com">random</a>, [url=http://website.com]random[/url], [link=http://website.com]random[/link], http://website.com
 				if (preg_match('/^([[:alnum:]])( ?)(.*?)(href)(.*?)((nofollow)?(.*?))(url)(.*?)(link)(.*?)$/', $comment_content)) {
-					$this->update_stats('spammed');
+					$this->update_stats('killed');
 					if ( defined('DOING_AJAX') )
 					{
 						die( __($this->language['explain']) );
@@ -586,7 +622,7 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 				// Protects
 				// random [url=http://website.com]random[/url], [link=http://website.com]random[/link], http://website.com
 				if (preg_match('/^([[:alnum:]])( ?)(.*?)(url)(.*?)(link)(.*?)$/', $comment_content)) {
-					$this->update_stats('spammed');
+					$this->update_stats('killed');
 					if ( defined('DOING_AJAX') )
 					{
 						die( __($this->language['explain']) );
@@ -597,7 +633,7 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 			
 			// HTML?
 			if (preg_match('/^(<strong>)(.*?)(<\/strong>)(.*?)([(\.)])(.*?)([(\.)])(.*?)$/s', $comment_content) || preg_match('/^(<b>)(.*?)(<\/b>)(.*?)([(\.)])(.*?)([(\.)])(.*?)$/s', $comment_content)) {
-					$this->update_stats('spammed');
+					$this->update_stats('killed');
 					if ( defined('DOING_AJAX') )
 					{
 						die( __($this->language['explain']) );
