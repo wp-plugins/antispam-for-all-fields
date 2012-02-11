@@ -17,9 +17,10 @@ class antispam_for_all_fields_core extends mijnpress_plugin_framework
 	/**
 	 * Checks if regex is applicable for this word in a string
 	 */
-	public function string_is_spam($stringtotest, $spamword) {
+	public function string_is_spam($spamword, $stringtotest) {
 		//if (preg_match("#\b(" . str_replace("\*", ".*?", preg_quote($stringtotest, '#')) . ")\b#i", $spamword)) {
-		
+
+		// echo "test: $stringtotest , word: $spamword <br/>";
 		$spamword = trim($spamword,'*');
 		if (preg_match("/\b$spamword\b/i",$stringtotest)) {
 			return true;
