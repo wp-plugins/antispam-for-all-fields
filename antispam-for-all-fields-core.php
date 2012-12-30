@@ -20,9 +20,21 @@ class antispam_for_all_fields_core extends mijnpress_plugin_framework
 	public function string_is_spam($spamword, $stringtotest) {
 		//if (preg_match("#\b(" . str_replace("\*", ".*?", preg_quote($stringtotest, '#')) . ")\b#i", $spamword)) {
 
-		// echo "test: $stringtotest , word: $spamword <br/>";
-		$spamword = trim($spamword,'*');
+
+		//echo "test: $stringtotest , word: $spamword <br/>";
+
 		if (preg_match("/\b$spamword\b/i",$stringtotest)) {
+			return true;
+		}
+
+
+		// 2nd run
+		$spamword = str_replace('*','',$spamword);
+		$spamword = trim($spamword);
+		$pattern = '/' . preg_quote($spamword, '/') . '/';
+
+
+		if (preg_match($pattern, strtolower($stringtotest))) {
 			return true;
 		}
 		return false;

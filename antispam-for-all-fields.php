@@ -4,7 +4,7 @@
  Plugin URI: http://www.mijnpress.nl
  Description: Class and functions
  Author: Ramon Fincken
- Version: 0.8.0
+ Version: 0.8.2
  Author URI: http://www.mijnpress.nl
  */
 
@@ -15,7 +15,7 @@ if(!class_exists('mijnpress_plugin_framework'))
 	include('mijnpress_plugin_framework.php');
 }
 
-define('PLUGIN_ANTISPAM_FOR_ALL_FIELDS_VERSION', '0.8.0');
+define('PLUGIN_ANTISPAM_FOR_ALL_FIELDS_VERSION', '0.8.2');
 
 if(!class_exists('antispam_for_all_fields_core'))
 {
@@ -24,6 +24,17 @@ if(!class_exists('antispam_for_all_fields_core'))
 
 // Calls core function after a comments has been submit
 add_filter('pre_comment_approved', 'plugin_antispam_for_all_fields', 0);
+
+// Refer check yes/no
+add_filter('pre_option_antispamextra_disallow_nonreferers','plugin_antispam_for_all_fields_antispamextra_disallow_nonreferers');
+
+/**
+ * Refer check yes/no
+ */
+function plugin_antispam_for_all_fields_antispamextra_disallow_nonreferers()
+{
+	return true;
+}
 
 // Shows statistics
 add_action('activity_box_end', 'plugin_antispam_for_all_fields_stats');
@@ -529,7 +540,7 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 		$domain = strtolower($temp[1]);
 		$split1len = strlen($temp[0]);
 		$dotlen = substr_count($temp[0],'.');
-		if(intval($dotlen/($split1len/100)) > 25)
+		if($split1len > 0 && intval($dotlen/($split1len/100)) > 25)
 		{
 			if(in_array($domain,array('google.com','gmail.com','hotmail.com','live.com','mail.ru')))
 			{
@@ -607,7 +618,6 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 					wp_die( __($this->language['explain']), '', array('response' => 403) );
 				}
 			}
-			
 			
 			// Any uri found?
 			if (preg_match('/^(.*?)(http)(.*?)$/', $comment_content)) {
