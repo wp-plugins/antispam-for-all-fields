@@ -23,7 +23,7 @@ class antispam_for_all_fields_core extends mijnpress_plugin_framework
 
 		//echo "test: $stringtotest , word: $spamword <br/>";
 
-		if (preg_match("/\b$spamword\b/i",$stringtotest)) {
+		if (@preg_match("/\b$spamword\b/i",$stringtotest)) {
 			return true;
 		}
 
