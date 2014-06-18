@@ -1,9 +1,9 @@
 === Antispam for all fields ===
 Contributors: Ramon Fincken
 Donate link: http://donate.ramonfincken.com
-Tags: spam,antispam,phpbbantispam,anti-spam,wordpressantispam,comment,comments,pingback,trackback,ip,lookup
+Tags: spam,antispam,phpbbantispam,anti-spam,wordpressantispam,comment,comments,pingback,trackback,ip,lookup,stopforumspam
 Requires at least: 2.0.2
-Tested up to: 3.5
+Tested up to: 3.9.1
 Stable tag: 0.8.3
 
 Plugin to reject spam. Port from same author from http://www.phpbbantispam.com
@@ -13,6 +13,8 @@ Actually visits the URL from commenter to spider for spamwords.
 
 Plugin to reject spam. Port from same author from http://www.phpbbantispam.com <br>
 Actually visits the URL from commenter to spider for spamwords. <br>
+Also checks using StopForumSpam.com API <br>
+Compatible with many other anti spam plugins such as Akismet <br>
 Plugin does a lot more such as (this list does not cover all antispam functions present):<br>
 * Count for number of web-URI's in comment<br>
 * Count on email, IP, URI compared with allready spammed comments<br>
