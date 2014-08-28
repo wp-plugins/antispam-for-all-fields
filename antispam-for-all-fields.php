@@ -4,7 +4,7 @@
  Plugin URI: http://www.mijnpress.nl
  Description: Class and functions
  Author: Ramon Fincken
- Version: 0.8.3
+ Version: 0.8.4
  Author URI: http://www.mijnpress.nl
  */
 
@@ -15,7 +15,7 @@ if(!class_exists('mijnpress_plugin_framework'))
 	include('mijnpress_plugin_framework.php');
 }
 
-define('PLUGIN_ANTISPAM_FOR_ALL_FIELDS_VERSION', '0.8.3');
+define('PLUGIN_ANTISPAM_FOR_ALL_FIELDS_VERSION', '0.8.4');
 
 if(!class_exists('antispam_for_all_fields_core'))
 {
@@ -186,7 +186,45 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 			$this->words = $settings['words'];
 		}
 
-		$this->user_ip = htmlspecialchars(preg_replace('/[^0-9a-fA-F:., ]/', '', $_SERVER['REMOTE_ADDR']));
+		// $this->user_ip = htmlspecialchars(preg_replace('/[^0-9a-fA-F:., ]/', '', $_SERVER['REMOTE_ADDR']));
+		if(!function_exists('rpcif__set_client_ip')) {
+		
+			/**
+			 * Code from https://plugins.trac.wordpress.org/browser/reverse-proxy-comment-ip-fix/trunk/reverse-proxy-comment-ip-fix.php
+			 */	
+			function rpcif__set_client_ip()
+			{
+			    /**
+			     * Security Note
+			     * -------------
+			     * We ultimately trust the IPs provided in the X-Forwarded-For header.
+			     * The reliability of the X-Forwarded-For header should be checked
+			     * at the reverse proxy level.
+			     */
+			
+			    // Use IP set in the REMOTE_ADDR server variable by default
+			    $CLIENT_IP = $_SERVER['REMOTE_ADDR'];
+			    if (!empty($_SERVER['X_FORWARDED_FOR'])) {
+			        $X_FORWARDED_FOR = explode(',', $_SERVER['X_FORWARDED_FOR']);
+			    }
+			
+			    // Extra check taken from The WordPress Codex at:
+			    // http://codex.wordpress.org/Plugin_API/Filter_Reference/pre_comment_user_ip
+			    elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+			        $X_FORWARDED_FOR = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
+			    }
+			
+			    // If we got a
+			    if (!empty($X_FORWARDED_FOR)) {
+			        $CLIENT_IP = trim($X_FORWARDED_FOR[0]);
+			        //$CLIENT_IP = preg_replace('/[^0-9a-f:\., ]/si', '', $CLIENT_IP);
+			    }
+			
+			    return $CLIENT_IP;
+			}
+		}
+		$this->user_ip = rpcif__set_client_ip();
+		
 		$this->user_ip_fwd = htmlspecialchars(preg_replace('/[^0-9a-fA-F:., ]/', '', @$_SERVER['HTTP_X_FORWARDED_FOR'])); // For future use
 	}
 
@@ -558,10 +596,13 @@ class antispam_for_all_fields extends antispam_for_all_fields_core
 		}
 
 		// IP check
-		$count = $this->check_count('comment_author_IP', $this->user_ip);
-		$temp = $this->compare_counts($count, 'comment_author_IP', $commentdata);
-		if ($temp) {
-			return $temp;
+		if($this->user_ip != '127.0.0.1')
+		{
+			$count = $this->check_count('comment_author_IP', $this->user_ip);
+			$temp = $this->compare_counts($count, 'comment_author_IP', $commentdata);
+			if ($temp) {
+				return $temp;
+			}
 		}
 
 

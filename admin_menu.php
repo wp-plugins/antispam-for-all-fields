@@ -40,5 +40,5 @@ This is an agressive list. Please delete or add any words your want.
 <br/>
 <textarea name="words" rows="15"><?php $i = 0; foreach($plugin->words as $word) { if($i > 0) {echo "\n";} echo $word; $i++;}; ?></textarea>
 
-<input type="submit" name="button" value="Update" class="button-primary" />
+<input type="submit" name="button" value="Update" class="button" />
 </form>

@@ -187,7 +187,7 @@ class antispam_for_all_fields_core extends mijnpress_plugin_framework
 		{
 			$this->limits['upper'] = 10;
 		}
-		
+	
 		if ($count > $this->limits['upper']) {
 			$body = "Details are below: \n";
 			$body .= "action: exceeded upper threshold, comment denied \n";
@@ -206,8 +206,8 @@ class antispam_for_all_fields_core extends mijnpress_plugin_framework
 			$this->mail_details('rejected comment', $body,$commment_key);
 			$this->store_comment($commentdata,'killed');
 			$this->update_stats('killed');
-			
-			die('spam');
+
+			die('spam'.$field);
 		} else {
 			if ($count > $this->limits['lower']) {
 				$body = "Details are below: \n";
