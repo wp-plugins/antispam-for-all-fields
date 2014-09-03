@@ -1,7 +1,7 @@
 === Antispam for all fields ===
 Contributors: Ramon Fincken
 Donate link: http://donate.ramonfincken.com
-Tags: spam,antispam,phpbbantispam,anti-spam,wordpressantispam,comment,comments,pingback,trackback,ip,lookup,stopforumspam
+Tags: spam,antispam,phpbbantispam,anti-spam,wordpressantispam,comment,comments,pingback,trackback,ip,lookup,stopforumspam,proxy,reverse,varnish
 Requires at least: 2.0.2
 Tested up to: 3.9.2
 Stable tag: 0.8.4
