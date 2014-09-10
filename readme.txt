@@ -3,8 +3,8 @@ Contributors: Ramon Fincken
 Donate link: http://donate.ramonfincken.com
 Tags: spam,antispam,phpbbantispam,anti-spam,wordpressantispam,comment,comments,pingback,trackback,ip,lookup,stopforumspam,proxy,reverse,varnish
 Requires at least: 2.0.2
-Tested up to: 3.9.2
-Stable tag: 0.8.4
+Tested up to: 4.0
+Stable tag: 0.8.5
 
 Plugin to reject spam. Port from same author from http://www.phpbbantispam.com
 Actually visits the URL from commenter to spider for spamwords.
@@ -41,6 +41,11 @@ I always check my tweets, so mention my name with @ramonfincken and your problem
 
 
 == Changelog ==
+= 0.8.5 =
+Added: Hello/test messages, instant block<br>
+Added: Filter to allow NON admins to see the antispam pages: apply_filters( 'afaf_is_allowed', false )
+
+
 = 0.8.4 =
 Added: Retrieve proxy IP, props to https://plugins.trac.wordpress.org/browser/reverse-proxy-comment-ip-fix/trunk/reverse-proxy-comment-ip-fix.php<br>
 Bugfix: Button in backend acted weird and could not be clicked, fixed now
