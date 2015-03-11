@@ -2,8 +2,8 @@
 Contributors: Ramon Fincken
 Donate link: http://donate.ramonfincken.com
 Tags: spam,antispam,phpbbantispam,anti-spam,wordpressantispam,comment,comments,pingback,trackback,ip,lookup,stopforumspam,proxy,reverse,varnish
-Requires at least: 2.0.2
-Tested up to: 4.0
+Requires at least: 3.0
+Tested up to: 4.1.1
 Stable tag: 0.8.5
 
 Plugin to reject spam. Port from same author from http://www.phpbbantispam.com
